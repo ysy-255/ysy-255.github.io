@@ -1,0 +1,83 @@
+html{
+	font-family: 'ＭＳ ゴシック', monospace;
+	word-break: keep-all;
+}
+
+/*
+html *{
+	box-sizing: border-box;
+}
+*/
+
+body{
+	font-size: 16px;
+	background-color: #000;
+	color: #C0C0C0;
+	line-height: 1.2;
+}
+
+body *{
+	margin-block: 8px;
+}
+
+a{
+	text-decoration: none;
+	display: inline-block;
+	font-weight: bold;
+}
+a:link{
+	color: #6CF;
+}
+a:hover{
+	text-decoration: underline;
+	transform: translateX(0.25em);
+}
+a:visited{
+	color: #C6F;
+}
+
+h1{
+	font-family: 'メイリオ';
+	font-size: 32px;
+	padding-left: 24px;
+}
+h2{
+	padding-left: 6px;
+}
+h3{
+	padding-left: 12px;
+}
+h4{
+	padding-left: 18px;
+}
+
+table{
+	font-size: 18px;
+	border-collapse: collapse;
+	margin-left: 16px;
+	text-align: center;
+}
+
+td{
+	border: 1px solid;
+	border-color: #C0C0C0;
+	padding: 6px;
+}
+
+th{
+	background-color: #C0C0C0;
+	color: #000;
+	border-left: 1px solid;
+	border-right: 1px solid;
+	border-color: #000;
+}
+.th_first{
+	border-left-color: #C0C0C0;
+}
+.th_last{
+	border-right-color: #C0C0C0;
+}
+
+li{
+	margin-left: 8px;
+}

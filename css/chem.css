@@ -1,0 +1,18 @@
+.chem, .chem_fg1, .chem_fg2, .chem_fg3{
+	font-family: 'Consolas', monospace;
+	font-size: 28px;
+	font-weight: normal;
+	color:#80D0D0;
+}
+
+.chem_fg3::before, .chem_fg2::before{
+	content: '-';
+	font-weight: bold;
+	color: #D0D080;
+}
+
+.chem_fg1::after, .chem_fg2::after{
+	content: '-';
+	font-weight: bold;
+	color: #D0D080;
+}
