@@ -36,12 +36,17 @@ a:visited{
 	color: #C6F;
 }
 
+p{
+	padding-left: 30px;
+}
+
 h1{
 	font-family: 'メイリオ';
 	font-size: 32px;
 	padding-left: 24px;
 }
 h2{
+	padding-top: 12px;
 	padding-left: 6px;
 }
 h3{
