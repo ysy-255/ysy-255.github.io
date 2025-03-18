@@ -1,6 +1,6 @@
 html{
 	font-family: 'ＭＳ ゴシック', monospace;
-	word-break: keep-all;
+	tab-size: 4;
 }
 
 /*
@@ -10,10 +10,10 @@ html *{
 */
 
 body{
-	font-size: 16px;
+	font-size: 14px;
 	background-color: #000;
 	color: #C0C0C0;
-	line-height: 1.2;
+	line-height: 1.6;
 }
 
 body *{
@@ -36,12 +36,26 @@ a:visited{
 	color: #C6F;
 }
 
-p{
+a, p{
+	margin: 0 0 0 0;
+}
+
+p, pre{
 	padding-left: 30px;
 }
 
+p > pre{
+	padding: 0 0 0 0;
+}
+
+pre{
+	font-family: 'ＭＳ ゴシック', monospace;
+	line-height: 1;
+	white-space: pre-wrap;
+}
+
 h1{
-	font-family: 'メイリオ';
+	font-family: 'メイリオ', sans-serif;
 	font-size: 32px;
 	padding-left: 24px;
 }
@@ -57,7 +71,6 @@ h4{
 }
 
 table{
-	font-size: 18px;
 	border-collapse: collapse;
 	margin-left: 16px;
 	text-align: center;
@@ -85,4 +98,35 @@ th{
 
 li{
 	margin-left: 8px;
+}
+
+details, summary{
+	margin-inline: 0;
+	margin-bottom: 0;
+}
+
+details{
+	margin-top: 16px;
+}
+
+summary{
+	cursor: pointer;
+}
+details[open] > summary{
+	cursor: default;
+}
+
+.red_wavy{
+	text-decoration: red wavy underline;
+	text-decoration-skip-ink: none;
+}
+
+div{
+	margin-top: 16px;
+	margin-bottom: 0;
+	margin-inline: 0;
+}
+
+b{
+	font-weight: bold;
 }

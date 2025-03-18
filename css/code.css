@@ -1,0 +1,29 @@
+code, .terminal, .cmd, .hash{
+	font-family: 'Consolas', monospace;
+	line-height: 1.35;
+	border-radius: 4px;
+	padding-inline: 4px;
+	padding-block: 1.5px;
+	background-color: #303030;
+}
+
+.terminal::before{
+	content: "$ ";
+}
+
+.cmd::before{
+	content: "> ";
+}
+
+.hash::before{
+	content: "# ";
+}
+
+details.solved > summary{
+	color: #00c000;
+}
+
+details.unsolved > summary{
+	color: #c00000;
+}
+
