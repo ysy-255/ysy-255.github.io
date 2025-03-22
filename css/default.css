@@ -24,6 +24,7 @@ a{
 	text-decoration: none;
 	display: inline-block;
 	font-weight: bold;
+	padding-right: 0.25em;
 }
 a:link{
 	color: #6CF;
@@ -36,7 +37,7 @@ a:visited{
 	color: #C6F;
 }
 
-a, p{
+a, p, pre{
 	margin: 0 0 0 0;
 }
 

