@@ -12,7 +12,7 @@
 		details.unsolved > summary{color: #c00000;}
 	</style>
 </head>
-<body style="padding-left: min(20vw, max(calc(40vw - 320px), 0px)); width: max(60vw, min(90vw, calc(30vw + 480px)));">
+<body style="padding-left: min(20vw, max(calc(32vw - 192px), 0px)); width: max(60vw, min(90vw, calc(42vw + 288px)));">
 	<a href="/index.html">戻る</a>
 	<h1>picoCTF 2025 writeup</h1>
 	<div><pre>Player Name : sig255</pre></div>
@@ -54,6 +54,7 @@ Enter the address to jump to, ex => 0x12345: </code></pre>
 		<div>
 			<p><a href="https://www.google.com/search?q=0x33d-0x96" target="_blank">0x33d - 0x96</a> = 0x2a7 なので、</p>
 			<p><code>0x59e47fc5c2a7</code>が<code>win()</code>の位置</p>
+			<p><code class="output">Enter the address to jump to, ex => 0x12345: </code><code>0x59e47fc5c2a7</code></p>
 		</div>
 		<div><p><code>picoCTF{b4s1c_p051t10n_1nd3p3nd3nc3_********}</code></p></div>
 	</details>
@@ -73,7 +74,7 @@ setuid(0);</code></pre>
 		</div>
 		<div>
 			<p>bashスクリプトを使う。スクリプトの中身は</p>
-			<p><code>sudo cat /root/flag.txt</code>とする</p>
+			<p><code>cat /root/flag.txt</code>とする</p>
 		</div>
 		<div>
 			<p>nanoなどを使わなくても、</p>
@@ -84,9 +85,9 @@ setuid(0);</code></pre>
 		</div>
 		<div>
 			<p><code>PATH</code>は、<code>:</code>を区切り文字として記述されていて、より左に記述されているディレクトリを優先する</p>
-			<p>PATHの編集は、</p>
+			<p>PATHは、</p>
 			<p><code class="bash">export PATH=[編集後のPATH]</code></p>
-			<p>のようにして行う</p>
+			<p>で上書きできる</p>
 			<p>PATHは<code>$PATH</code>で参照できるので、</p>
 			<p><code class="bash">export PATH=[追加するパス]:$PATH</code></p>
 			<p>で優先順位が一番高いところに実行ファイルの検索ディレクトリを追加できる</p>
@@ -121,7 +122,7 @@ setuid(0);</code></pre>
 			<p>rbashの制限から脱出する方法は色々あるみたい。今回は<code class="bash">bash</code>で通常のbashを起動した。</p>
 		</div>
 		<div>
-			<p>ここまで来たらあとはhash-only-1 と同じ。まとめると、</p>
+			<p>ここまで来たらあとは hash-only-1 と同じ。まとめると、</p>
 			<p><code class="bash">bash</code></p>
 			<p><code class="bash">echo -e '#!/bin/bash\ncat /root/flag.txt' > md5sum</code></p>
 			<p><code class="bash">chmod +x md5sum</code></p>
@@ -139,7 +140,7 @@ setuid(0);</code></pre>
 			<p>でバッファにユーザーの入力を受け取り、</p>
 			<p><code>printf(buffer);</code></p>
 			<p>でprintfの第一引数としていること。</p>
-			<p>この時点で、win()関数のポインタを特定する必要がある</p>
+			<p>この時点で、<code>win()</code>関数のポインタを特定する必要がある</p>
 		</div>
 		<div>
 			<p><code>printf([ユーザーの入力]);</code>は良く知られた脆弱性で、そこを突いた攻撃は書式文字列攻撃という。</p>
@@ -149,7 +150,7 @@ setuid(0);</code></pre>
 		</div>
 		<div>
 			<p>また、PIE TIME から分かるように、ポインタの16進数の下3桁はデコンパイルした時の値と同じになるようなので、</p>
-			<p>スタックの中身を出力してそれらしいポインタの値を見ることで、win()関数のポインタを特定できる</p>
+			<p>スタックの中身を出力してそれらしいポインタの値を見ることで、<code>win()</code>関数のポインタを特定できる</p>
 		</div>
 		<div>
 			<p><a href="https://binary.ninja/free/" target="_blank">Binary Ninja Free</a>でデコンパイルすると、</p>
@@ -165,7 +166,7 @@ setuid(0);</code></pre>
 		<div>
 			<p><code>%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p</code>を入力すると、</p>
 			<p><code class="output">0x5ea28f7132a1_...(略)..._0x5ea254c2a<b>1c0</b>_...(略)..._0x7a3392b9d083</code>と返された</p>
-			<p>1c0 が _start と対応していると推測すると、win()のポインタは<code>0x5ea254c2a<b>36a</b></code>と予想できる。</p>
+			<p>1c0 が<code>_start</code>と対応していると推測すると、<code>win()</code>のポインタは<code>0x5ea254c2a<b>36a</b></code>と予想できる。</p>
 			<p>これを入力するとフラグを入手できた</p>
 		</div>
 		<div><p><code>picoCTF{p13_5h0u1dn'7_134k_********}</code></p></div>
@@ -190,7 +191,7 @@ setuid(0);</code></pre>
 			<p><small>自分は詳しくは理解できていませんが、</small></p>
 			<p>https通信に使われているRSA暗号は、適切に鍵を生成しないと脆弱になります。</p>
 			<p><a href="https://www.dcode.fr/rsa-cipher" target="_blank">>> RSA Cipher Calculator</a></p>
-			<p>等を使って、与えられたN, e, c(cyphertext(暗号化された文))を入力してDecryptすると、フラグを得られます</p>
+			<p>等を使って、与えられた<code>N</code>, <code>e</code>, <code>c</code>(cyphertext(暗号化された文))を入力してDecryptすると、フラグを得られます</p>
 			<p>今回は、鍵の生成に用いる2つ素数のうち1つが 2 と非常に小さい数であったため、簡単に特定できてしまったみたいです。</p>
 		</div>
 		<div><p><code>picoCTF{tw0_1$_pr!m********}</code></p></div>
@@ -330,7 +331,7 @@ Bold in every stroke.</code></pre>
 			<p><small>かなり悩んだが、</small>それぞれのデータの最後の4文字が、2文字の繰り返しになっていることから、Base64の最後の=と対応していると仮定すると、</p>
 			<p>左から2画素ずつで1文字を表しているとわかる。</p>
 			<p><code>00111101</code> : <code>=</code>をASCIIの2進数で表した</p>
-			<p><code>00101101</code> : 最後の2画素を<code>RGBARGBA</code>の順にした</p>
+			<p><code>00101101</code> : 最後の2画素のLSBを<code>RGBARGBA</code>の順にした</p>
 			<p><code>RGBARGBA</code>の左から4つ目のAを反転すればよさそう..？ やってみると、</p>
 		</div>
 		<div>
@@ -410,7 +411,7 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 			<p><code class="bash">sudo apt-get install libfuse-dev</code></p>
 			<p><code class="bash">sudo mkdir /media/bitlocker /media/mount</code></p>
 			<p><code class="bash">sudo dislocker -r -V bitlocker-1.dd -u -- /media/bitlocker</code></p>
-			<p><code class="output">Enter the user password: </code></p>
+			<p><code class="output">Enter the user password: </code><code>jacqueline</code></p>
 			<p><code class="bash">sudo -i</code></p>
 			<p><code class="root">cd /media/bitlocker</code></p>
 			<p><code class="root">mount -r -o loop dislocker-file /media/mount</code></p>
