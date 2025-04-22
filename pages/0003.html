@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>0003.html</title>
+	<link rel="stylesheet" href="/css/default.css">
+</head>
+<body>
+	<a href="/index.html">戻る</a>
+	<h1>このページは未完成です</h1>
+	<h1>PNGの仕様の概要</h1>
+<pre>
+	(2025/03/13時点)
+
+	4.5 PNG image
+
+	参照画像の変換を通して、以下に示す5種類のうちの1つのPNG画像を得る(図6)
+
+	Truecolor with alpha:
+		各ピクセルは4つのチャンネル Red, Green, Blue, Alpha で構成される
+	Greyscale with alpha:
+		各ピクセルは2つのチャンネル Gray, Alpha で構成される
+	Truecolor:
+		各ピクセルは3つのチャンネル Red, Green, Blue で構成される。
+		ある単一のRGB値について、そのRGB値を持つピクセルが完全に透明であると定義することもできる。その場合、それ以外のピクセルは完全に不透明である。定義しない場合は、すべてのピクセルは完全に不透明である。
+	Grayscale:
+		各ピクセルは1つのチャンネル Grey をもつ。つまり、(黒から白の中の間で)輝度を表す。
+		ある単一のGrey値について、そのGrey値をもつピクセルが完全に透明であると定義することもできる。その場合、それ以外のピクセルは完全に不透明である。定義しない場合は、すべてのピクセルは完全に不透明である。
+	Indexed-color:
+		各ピクセルはパレットへのインデックスをで構成される。
+		(また、もしあるようであれば、パレットに紐づけられたAlphaパレットへのインデックスとしても機能する)
+
+	各ピクセルのフォーマットは image type と bit depth に依存する。
+	Indexed-color以外のPNG画像では、 bit depth がチャンネルあたりのbit数を定める。(ピクセルあたりの総bit数でなく)
+	Indexed-colorのPNG画像では、 bit depth はパレットへのインデックスのbit数を定める。(パレットが持つ色についてのbit数ではない)
+	ピクセル内で各チャンネルが並ぶ順番は image type に依存し、以下に示される。
+
+	Truecolor with alpha: red green blue alpha
+    Greyscale with alpha: grey alpha
+    Truecolor: red green blue
+    Greyscale: grey
+    Indexed-color: パレットへのインデックス
+
+	4.6 Encoding the PNG image
+
+	PNG画像のエンコード処理の概念的なモデルは図7にて示される。
+	この処理はピクセルの配列または(パレットへの)インデックスの配列への操作を指している。
+	この処理内においてパレットやAlphaパレットはエンコードされない。
+</pre>
+</body>
+</html>
