@@ -12,7 +12,7 @@
 		details.unsolved > summary{color: #c00000;}
 	</style>
 </head>
-<body style="padding-left: min(20vw, max(calc(32vw - 192px), 0px)); width: max(60vw, min(90vw, calc(42vw + 288px)));">
+<body style="padding-left: clamp(0px, calc(32vw - 192px), 20vw); width: clamp(60vw, calc(42vw + 288px), 90vw);">
 	<a href="/index.html">戻る</a>
 	<h1>picoCTF 2025 writeup</h1>
 	<div><pre>Player Name : sig255</pre></div>
@@ -312,10 +312,10 @@ Bold in every stroke.</code></pre>
 			<p>LSBだけを抜き出して画像にする(0なら0、1なら255)と以下のようになる</p>
 		</div>
 		<div style="margin-left: 40px;">
-			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Rのみ</figcaption><img src="/images/0001/RED_R.png" width="128" height="128"></figure>
-			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Gのみ</figcaption><img src="/images/0001/RED_G.png" width="128" height="128"></figure>
-			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Bのみ</figcaption><img src="/images/0001/RED_B.png" width="128" height="128"></figure>
-			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Aのみ</figcaption><img src="/images/0001/RED_A.png" width="128" height="128"></figure>
+			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Rのみ</figcaption><img src="/images/0001/RED_R.png" width="128" height="128" alt="元画像のうちRチャンネルのLSBのみを白黒で表示した画像"></figure>
+			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Gのみ</figcaption><img src="/images/0001/RED_G.png" width="128" height="128" alt="元画像のうちGチャンネルのLSBのみを白黒で表示した画像"></figure>
+			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Bのみ</figcaption><img src="/images/0001/RED_B.png" width="128" height="128" alt="元画像のうちBチャンネルのLSBのみを白黒で表示した画像"></figure>
+			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Aのみ</figcaption><img src="/images/0001/RED_A.png" width="128" height="128" alt="元画像のうちAチャンネルのLSBのみを白黒で表示した画像"></figure>
 		</div>
 		<div>
 			<p>各行で同じデータが連なっていることが分かる。このままだと分からないので、各色ごとに1行目のLSBを取り出してみる</p>
@@ -560,7 +560,6 @@ False Negatives Check: Testcase failed. Your rule generated a false negative.
 False Positives Check: Testcases passed!
 Stats: 61 testcase(s) passed. 1 failed. 2 testcase(s) unchecked. 64 total testcases.
 Pass all the testcases to get the flag.</code></pre>
-			</p>
 		</div>
 		<div>
 			<p>64テストケース中61ケースがfalseで通ることが分かる。</p>
@@ -817,7 +816,7 @@ int main(){
 	<details class="solved"><summary>300 points | Pachinko</summary>
 		<div>
 			<p><b>なにもわかっていないけどこれでフラグを入手できました</b></p>
-			<img src="/images/0001/pachinko.png" width="450">
+			<img src="/images/0001/pachinko.png" width="450" alt="(数字はノード番号を表す) 5から{12,9},6から{9,10},7から{10,11},8から{11,12}に、9から1,10から2,11から3,12から4につなげた有向グラフ">
 		</div>
 		<div><p><code>picoCTF{p4ch1nk0_f146_0n3_********}</code></p></div>
 	</details>
