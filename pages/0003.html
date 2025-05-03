@@ -6,87 +6,140 @@
 	<title>0003.html</title>
 	<link rel="stylesheet" href="/css/default.css">
 </head>
-<body>
-	<a href="/index.html">戻る</a>
+<body class="body_w70">
+	<a href="/index.html" id="back_to_main">戻る</a>
 	<h1>このページは未完成です</h1>
 	<h1>PNGの仕様の概要</h1>
-<pre>
 	(2025/03/13時点)
 
-	4.5 PNG image
 
-	参照画像の変換を通して、以下に示す5種類のうちの1つのPNG画像を得る(図6)
+	<h3>独自の表現</h3>
+	<table style="margin-bottom: 40px;">
+		<tr><th>原文での表現</th><th>独自の表現</th><th>備考</th></tr>
+		<tr><td>Palette</td><td>カラーパレット</td><td>Alpha Tableとの整合性のため。</td></tr>
+		<tr><td>Alpha Table</td><td>アルファパレット</td><td>カラーパレットに対応していると判断した。<br>まとめてパレットと表現することもある。</td></tr>
+		<tr><td>sample</td><td>成分</td></tr>
+	</table>
 
-	Truecolor with alpha:
-		各ピクセルは4つのチャンネル Red, Green, Blue, Alpha で構成される
-	Greyscale with alpha:
-		各ピクセルは2つのチャンネル Gray, Alpha で構成される
-	Truecolor:
-		各ピクセルは3つのチャンネル Red, Green, Blue で構成される。
-		ある単一のRGB値について、そのRGB値を持つピクセルが完全に透明であると定義することもできる。その場合、それ以外のピクセルは完全に不透明である。定義しない場合は、すべてのピクセルは完全に不透明である。
-	Grayscale:
-		各ピクセルは1つのチャンネル Grey をもつ。つまり、(黒から白の中の間で)輝度を表す。
-		ある単一のGrey値について、そのGrey値をもつピクセルが完全に透明であると定義することもできる。その場合、それ以外のピクセルは完全に不透明である。定義しない場合は、すべてのピクセルは完全に不透明である。
-	Indexed-color:
-		各ピクセルはパレットへのインデックスで構成される。
-		(また、もしあるようであれば、パレットに紐づけられたAlphaパレットへのインデックスとしても機能する)
+	<h3>4.5 PNG image</h3>
+	<p>参照画像を変換し、以下に示す5種類のうち1つのPNG画像を得る</p>
+	<dl>
+		<dt>Truecolor with alpha</dt>
+		<dd>各ピクセルは4つの成分<code>Red</code>,<code>Green</code>,<code>Blue</code>,<code>Alpha</code>で構成される</dd>
+		<dt>Greyscale with alpha</dt>
+		<dd>各ピクセルは2つの成分<code>Grey</code>,<code>Alpha</code>で構成される</dd>
+		<dt>Truecolor</dt>
+		<dd>各ピクセルは3つの成分<code>Red</code>,<code>Green</code>,<code>Blue</code>で構成される。</dd>
+		<dd>ある単一のRGB値について、そのRGB値を持つピクセルが完全に透明であると定義することもできる。その場合、それ以外のピクセルは完全に不透明である。定義しない場合、すべてのピクセルは完全に不透明である。</dd>
+		<dt>Greyscale</dt>
+		<dd>各ピクセルは1つの成分<code>Grey</code>をもつ。つまり、(黒から白の中の間で)輝度を表す。</dd>
+		<dd>ある単一のGrey値について、そのGrey値をもつピクセルが完全に透明であると定義することもできる。その場合、それ以外のピクセルは完全に不透明である。定義しない場合、すべてのピクセルは完全に不透明である。</dd>
+		<dt>Indexed-color</dt>
+		<dd>各ピクセルは<code>パレットへのインデックス</code>で構成される。</dd>
+		<dd>(また、もしあるようであれば、カラーパレットに紐づけられたアルファパレットへのインデックスとしても機能する)</dd>
+	</dl>
+	<p>各ピクセルのフォーマットは<code>image type</code>と<code>bit depth</code>によって定まる。</p>
+	<p><code>Indexed-color</code>以外のPNG画像では、<code>bit depth</code>がチャンネルあたりのbit数を定める。(ピクセルあたりの総bit数でない)</p>
+	<p><code>Indexed-color</code>のPNG画像では、<code>bit depth</code>はパレットへのインデックスのbit数を定める。(パレットが持つ色についてのbit数ではない)</p>
+	<p>ピクセル内で各成分が並ぶ順番は、<code>image type</code>により定まり、以下に示される</p>
+	<ul>
+		<li><strong>Truecolor with alpha</strong>: <code>Red</code><code>Green</code><code>Blue</code><code>Alpha</code></li>
+		<li><strong>Greyscale with alpha</strong>: <code>Grey</code><code>Alpha</code></li>
+		<li><strong>Truecolor</strong>: <code>Red</code><code>Green</code><code>Blue</code></li>
+		<li><strong>Greyscale</strong>: <code>Grey</code></li>
+		<li><strong>Indexed-color</strong>: <code>パレットへのインデックス</code></li>
+	</ul>
 
-	各ピクセルのフォーマットは image type と bit depth に依存する。
-	Indexed-color以外のPNG画像では、 bit depth がチャンネルあたりのbit数を定める。(ピクセルあたりの総bit数でなく)
-	Indexed-colorのPNG画像では、 bit depth はパレットへのインデックスのbit数を定める。(パレットが持つ色についてのbit数ではない)
-	ピクセル内で各チャンネルが並ぶ順番は image type に依存し、以下に示される。
+	<h3>4.6 Encoding the PNG image</h3>
+	<h4>Introduction</h4>
+	<p>PNG画像のエンコード処理の概念モデルは図7にて示される。この処理はピクセルの配列または(パレットへの)インデックスの配列への操作を指している。この処理内ではパレットはエンコードされない。</p>
+	<ol>
+		<li><strong>Pass extraction</strong>
+			<p>プログレッシブ表示を可能とするために、PNG画像は縮小画像(またはパス)と呼ばれるいくつかの小さな画像に編成し直すことができる。</p>
+		</li>
+		<li><strong>Scanline serialization</strong>
+			<p>画像はスキャンラインごとに変換される。スキャンライン中のピクセルの並びは左から右で、スキャンラインの並びは上から下である。</p>
+		</li>
+		<li><strong>Filtering</strong>
+			<p>定義されたフィルタから各スキャンラインにつき1つのフィルタを選択しフィルタリングすることで、圧縮に適した形式に変換する</p>
+		</li>
+		<li><strong>Compression</strong>
+			<p>画像内のすべてのスキャンラインに対して行う</p>
+		</li>
+		<li><strong>Chunking</strong>
+			<p>圧縮された画像を適切な大きさのチャンクに分割する。各チャンクには誤り検出符号が追加される。</p>
+		</li>
+		<li><strong>Datastream construction</strong>
+			<p>チャンクはデータストリーム内に挿入される</p>
+		</li>
+	</ol>
 
-	Truecolor with alpha: red green blue alpha
-    Greyscale with alpha: grey alpha
-    Truecolor: red green blue
-    Greyscale: grey
-    Indexed-color: パレットへのインデックス
+	<h4>4.6.1 Pass extraction</h4>
+	<p>パス抽出(図7を参照)はPNG画像を縮小画像の並びに分割する。最初の縮小画像は画像の粗い表示を提供し、最後の画像でPNG画像の読み込みが完了するまで後続の縮小画像がその表示を改善していく。これらの縮小画像をまとめてインタレースPNG画像という。</p>
+	<p>この仕様では2つのインタレース手法を定義する。</p>
+	<p>1つ目の手法は、インタレースを使用しない。ピクセルは左から右へ順番にスキャンラインに格納され、スキャンラインは上から下へ並べられる</p>
+	<p style="margin-bottom: 12px;">2つ目の手法は、画像全体を複数回走査し、7つの縮小画像を生成する。7回の走査は図7にて図解されている。 8. Interlacing and pass extraction を参照すること。</p>
 
-	4.6 Encoding the PNG image
-
-	PNG画像のエンコード処理の概念的なモデルは図7にて示される。
-	この処理はピクセルの配列または(パレットへの)インデックスの配列への操作を指している。
-	この処理内においてパレットやAlphaパレットはエンコードされない。
-
-	1. Pass extraction:
-		プログレッシブな表示を可能とするために、PNG画像のピクセルは縮小画像やパスと呼ばれるいくつかの小さな画像に編成し直すことができる
-	2. Scanline serialization:
-		画像は連続したスキャンラインに一度に分割される。スキャンライン中のピクセルの並びは左から右で、スキャンラインの並びは上から下である
-	3. Filtering:
-		定義されたフィルタから各スキャンラインにつき1つのフィルタを選びフィルタリングし、この後の画像圧縮に準備する
-	4. Compression:
-		画像内のすべてのスキャンラインに対して行う
-	5. Chunking:
-		圧縮された画像を適切な大きさのチャンクに分割される。各チャンクには誤り検出符号が付加される。
-	
-	4.6.1 Pass extraction
-	パス抽出(図7)ではPNG画像を縮小画像の並びに分割する。最初の画像は粗い表示を提供し、最後の画像でPNG画像の読み込みが完了するまでは後続の画像がその表示を改善していく。
-	これらの縮小画像はインタレースPNG画像とも呼ぶ。
-	この仕様では2つのインタレース手法を定義する。
-	1つ目の手法では、インタレースを使用しない。ピクセルは左から右へ連続してスキャンラインへ格納され、スキャンラインは上から下に連続して格納される。
-	2つ目の手法では、画像を通して複数回走査し、7つの縮小画像を生成する。7つの走査は図7にて図解されている。
-	8. Interlacing and pass extraction を参照すること。
-	
+	<pre>
 	16462646
 	77777777
 	56565656
 	77777777
-	36463646
+	36463646 ....
 	77777777
 	56565656
 	77777777
-	
+
+	    :    `.
+		:      `.
+
 	↓6,7を無視したもの
 	1424
 	5555
 	3434
 	5555
 
-	4.6.2 Scanline serialization
-	画像内の各行はスキャンラインと呼ばれ、バイト列で表現される
+	1: 1*1 (1)
+	2: 1*1 (1)
+	3: 1*2 (2)
+	4: 2*2 (4)
+	5: 2*4 (8)
+	6: 4*4 (16)
+	7: 4*8 (32)
+	</pre>
 
-	
+	<h4>4.6.2 Scanline serialization</h4>
+	<p>画像内の各行はスキャンラインと呼ばれ、バイト列として表現される</p>
 
-</pre>
+	<h4>4.6.3 Filtering</h4>
+	<p>PNGでは画像データを圧縮する前にフィルタリングする。フィルタリングはデータをより圧縮しやすい形式へと変換できる。</p>
+	<p>フィルタリングは確実に完全な逆変換が可能な操作である。これは圧縮解除されたデータを逆フィルタリングすることで元データを得ることを可能とする。7.3 Filtering を参照すること。</p>
+
+	<h4>4.6.4 Compression</h4>
+	<p>インタレースを使用した場合7つの、そうでない場合1つの縮小画像のスキャンラインをそれぞれフィルタリングした後、それらを連結したものをまとめて圧縮し、1つの圧縮されたデータストリームを得る。(図9を参照)</p>
+	<p>この操作では、定義された圧縮方式のうちいずれか1つを使用する。10. Compression を参照すること。</p>
+
+	<h4>4.7 Additional information</h4>
+	<p>画像にはいくつかの補足情報が結びつけられることがある。デコーダーは、全てまたは一部の補足情報を無視するかもしれない。補足情報の種類は表2で説明される。</p>
+	<table>
+		<tr><th>補足情報の種類</th><th>説明</th></tr>
+		<tr><td>アニメーション情報</td>
+			<td>アニメーション画像は、連続したフレームやそれに紐づけられたタイミング、位置、処理のための情報を付帯し、表示が可能であれば表示される。例えばプリンターなど、可能でない場合は、性的画像が代わりに表示される。</td>
+		</tr>
+		<tr><td>背景色</td>
+			<td>(背景色に関して)それより良い情報がない場合、単色の背景が画像表示時に用いられる。</td>
+		</tr>
+		<tr><td>CICP(色空間に関する情報)</td>
+			<td>変換関数や基準となる色などのメタデータを列挙することで色空間の識別を可能にする。SDRやHDRの動画に利用されてきて、今ではアニメーション画像にも利用される。</td>
+		</tr>
+		<tr><td>輝度に関する情報</td>
+			<td>画像(または画像列)の中で最も明るいピクセルの輝度と、画像列の中で最も明るい画像の平均輝度を示す。</td>
+		</tr>
+		<tr><td>EXIF情報</td>
+			<td>シャッタースピード、絞り、向きなどのメタデータを含む。</td>
+		</tr>
+		<tr><td></td></tr>
+	</table>
+
 </body>
 </html>
