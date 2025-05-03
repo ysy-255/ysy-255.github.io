@@ -9,6 +9,23 @@ html *{
 }
 */
 
+.body_w60{
+	padding-left: clamp(0px, calc(32vw - 192px), 20vw);
+	width: clamp(60vw, calc(42vw + 288px), 90vw);
+	margin-inline: 0;
+}
+
+.body_w70{
+	padding-left: clamp(0px, calc(24vw - 144px), 15vw);
+	width: clamp(70vw, calc(58vw + 192px), 90vw);
+	margin-inline: 0;
+}
+
+#back_to_main{
+	padding: 0;
+	margin: 0;
+}
+
 body{
 	font-size: 14px;
 	background-color: #000;
@@ -18,6 +35,28 @@ body{
 
 body *{
 	margin-block: 8px;
+	padding: 0;
+}
+
+p, a, pre, dl, dd{
+	margin-block: 0;
+}
+
+dt{
+	margin-bottom: 0;
+}
+
+
+body > *, details > *{
+	margin-left: 30px;
+}
+
+summary{
+	margin-left: 0;
+}
+
+dd, li{
+	margin-left: 15px;
 }
 
 a{
@@ -39,13 +78,6 @@ a:visited{
 	color: #C060E0;
 }
 
-a, p, pre{
-	margin: 0 0 0 0;
-}
-
-p, pre{
-	padding-left: 30px;
-}
 
 pre{
 	font-family: 'ＭＳ ゴシック', monospace;
@@ -53,31 +85,47 @@ pre{
 	white-space: pre-wrap;
 }
 
-h1{
-	font-size: 32px;
-	padding-left: 24px;
-}
-h2{
-	padding-top: 12px;
-	padding-left: 6px;
-}
-h3{
-	padding-left: 12px;
-}
-h4{
-	padding-left: 18px;
+
+dt{
+	font-weight: bold;
 }
 
+
+/* 見出し */
+h1{
+	font-size: 32px;
+	/* 最上部のみに用いる想定 */
+	margin-top: 0;
+	margin-left: 24px;
+}
+h2{
+	margin-top: 24px;
+	margin-left: 6px;
+}
+h3{
+	margin-top: 16px;
+	margin-left: 12px;
+}
+h4{
+	margin-top: 12px;
+	margin-left: 18px;
+}
+
+h1, h2, h3, h4{
+	margin-bottom: 4px;
+}
+
+/* 表 */
 table{
 	border-collapse: collapse;
-	margin-left: 16px;
+	margin-left: 12px;
 	text-align: center;
 }
 
 td{
 	border: 1px solid;
 	border-color: #C0C0C0;
-	padding: 6px;
+	padding: 4px;
 }
 
 th{
@@ -87,25 +135,15 @@ th{
 	border-right: 1px solid;
 	border-color: #000;
 }
-.th_first{
+th:first-child{
 	border-left-color: #C0C0C0;
 }
-.th_last{
+th:last-child{
 	border-right-color: #C0C0C0;
 }
 
-li{
-	margin-left: 8px;
-}
 
-details, summary{
-	margin-inline: 0;
-	margin-bottom: 0;
-}
 
-details{
-	margin-top: 16px;
-}
 
 summary{
 	cursor: pointer;
@@ -116,10 +154,10 @@ details[open] > summary{
 
 code{
 	background-color: #303030;
-	font-family: 'Consolas', monospace;
+	font-family: 'Consolas', 'Menlo', "メイリオ", monospace;
 	display: inline-block;
 	margin-block: 1.5px;
-	margin-inline: 2px;
+	margin-inline: 3px;
 	padding-block: 1px;
 	padding-inline: 4px;
 	line-height: 1.35;
@@ -127,17 +165,8 @@ code{
 }
 
 
+
 .red_wavy{
 	text-decoration: red wavy underline;
 	text-decoration-skip-ink: none;
-}
-
-div{
-	margin-top: 16px;
-	margin-bottom: 0;
-	margin-inline: 0;
-}
-
-b{
-	font-weight: bold;
 }

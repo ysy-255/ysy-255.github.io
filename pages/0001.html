@@ -12,14 +12,14 @@
 		details.unsolved > summary{color: #c00000;}
 	</style>
 </head>
-<body style="padding-left: clamp(0px, calc(32vw - 192px), 20vw); width: clamp(60vw, calc(42vw + 288px), 90vw);">
-	<a href="/index.html">戻る</a>
+<body class="body_w60">
+	<a href="/index.html" id="back_to_main">戻る</a>
 	<h1>picoCTF 2025 writeup</h1>
 	<div><pre>Player Name : sig255</pre></div>
 	<div><pre>Score       : 4710</pre></div>
 	<div>
 		<pre>Global      : RANK 375</pre>
-		<pre>JP Students : RANK 18</pre>
+		<pre>JP Students : RANK  18</pre>
 	</div>
 	<h2>Binary Exploitation</h2>
 	<details class="solved"><summary>&nbsp;75 points | PIE TIME</summary>
@@ -37,8 +37,8 @@ foo();</code></pre>
 		</div>
 		<div>
 			<p><a href="https://binary.ninja/free/" target="_blank">>> Binary Ninja Free</a>で<code>vuln</code>をデコンパイルしてみる。</p>
-			<table style="margin-left: 40px;">
-				<tr><th class="th_first">Name</th><th class="th_last">address</th></tr>
+			<table>
+				<tr><th>Name</th><th>address</th></tr>
 				<tr><td style="padding: 0;">:</td><td style="padding: 0;">:</td></tr>
 				<tr><td>win</td><td>0x0000012a7</td></tr>
 				<tr><td>main</td><td>0x00000133d</td></tr>
@@ -154,19 +154,19 @@ setuid(0);</code></pre>
 		</div>
 		<div>
 			<p><a href="https://binary.ninja/free/" target="_blank">Binary Ninja Free</a>でデコンパイルすると、</p>
-			<table style="margin-left: 40px;">
-				<tr><th class="th_first">Name</th><th class="th_last">address</th></tr>
+			<table>
+				<tr><th>Name</th><th>address</th></tr>
 				<tr><td style="padding: 0;">:</td><td style="padding: 0;">:</td></tr>
-				<tr><td>_start</td><td>0x000001<b>1c0</b></td></tr>
+				<tr><td>_start</td><td>0x000001<strong>1c0</strong></td></tr>
 				<tr><td style="padding: 0;">:</td><td style="padding: 0;">:</td></tr>
-				<tr><td>win</td><td>0x000001<b>36a</b></td></tr>
+				<tr><td>win</td><td>0x000001<strong>36a</strong></td></tr>
 				<tr><td style="padding: 0;">:</td><td style="padding: 0;">:</td></tr>
 			</table>
 		</div>
 		<div>
 			<p><code>%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p</code>を入力すると、</p>
-			<p><code class="output">0x5ea28f7132a1_...(略)..._0x5ea254c2a<b>1c0</b>_...(略)..._0x7a3392b9d083</code>と返された</p>
-			<p>1c0 が<code>_start</code>と対応していると推測すると、<code>win()</code>のポインタは<code>0x5ea254c2a<b>36a</b></code>と予想できる。</p>
+			<p><code class="output">0x5ea28f7132a1_...(略)..._0x5ea254c2a<strong>1c0</strong>_...(略)..._0x7a3392b9d083</code>と返された</p>
+			<p>1c0 が<code>_start</code>と対応していると推測すると、<code>win()</code>のポインタは<code>0x5ea254c2a<strong>36a</strong></code>と予想できる。</p>
 			<p>これを入力するとフラグを入手できた</p>
 		</div>
 		<div><p><code>picoCTF{p13_5h0u1dn'7_134k_********}</code></p></div>
@@ -216,7 +216,7 @@ What cheese would you like to encrypt? </code><code>cheese</code></pre>
 		</div>
 		<div>
 			<p>cheeseはチーズの名前ではないみたい それはそうか...</p>
-			<p><b style="font-size: 1.2em;">ここでGuess My Cheese (Part 2)の問題文を見ます</b></p>
+			<p><strong style="font-size: 1.2em;">ここでGuess My Cheese (Part 2)の問題文を見ます</strong></p>
 			<p><code>list of cheeses</code>がありました。</p>
 			<p>このリストの中で、暗号化した後にツールが暗号化の種類を認識してくれそうな物を選びます。</p>
 			<p>Bergader とか良さそう</p>
@@ -233,7 +233,7 @@ What cheese would you like to encrypt? </code><code>cheese</code></pre>
 			<p><code class="output">A=17,B=23&Tab;BERGADER</code></p>
 			<p>これをもとにVZOONNKWKVを復号化すると、</p>
 			<p><code>GUBBEENDNG</code></p>
-			<p><b>そのまま</b>入力するとフラグを入手できた</p>
+			<p><strong>そのまま</strong>入力するとフラグを入手できた</p>
 		</div>
 		<div><p><code>picoCTF{ChEeSy********}</code></p></div>
 		<div><p><small>なお、実際はもっと混沌とした方法で進めていましたが、最終的な方法を修正するとこのような感じになったということです</small></p></div>
@@ -242,7 +242,7 @@ What cheese would you like to encrypt? </code><code>cheese</code></pre>
 		<div>
 			<p>Guess My Cheese (Part 1) のnetcatで色々なチーズの名前を試していくと、</p>
 			<table style="margin-left: 40px; font-size: 16px;">
-				<tr><th class="th_first">変換前</th><th class="th_last">変換後</th></tr>
+				<tr><th>変換前</th><th>変換後</th></tr>
 				<tr><td>小文字</td><td>大文字</td></tr>
 				<tr><td style="padding: 0;">'</td><td style="padding: 0;">A</td></tr>
 				<tr><td style="padding: 0;">(</td><td style="padding: 0;">B</td></tr>
@@ -307,11 +307,11 @@ Kisses linger with your warmth.
 Love deep as merlot.
 Scarlet leaves falling softly,
 Bold in every stroke.</code></pre>
-			<p>というPoemがあるが、文の最初の文字をつなげると、<b>CHECKLSB</b>となる</p>
+			<p>というPoemがあるが、文の最初の文字をつなげると、<strong>CHECKLSB</strong>となる</p>
 			<p>LSBとは最下位ビットのことで、画像の最下位ビットを変えても視覚的には判別できないため情報を隠すために使われる</p>
 			<p>LSBだけを抜き出して画像にする(0なら0、1なら255)と以下のようになる</p>
 		</div>
-		<div style="margin-left: 40px;">
+		<div>
 			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Rのみ</figcaption><img src="/images/0001/RED_R.png" width="128" height="128" alt="元画像のうちRチャンネルのLSBのみを白黒で表示した画像"></figure>
 			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Gのみ</figcaption><img src="/images/0001/RED_G.png" width="128" height="128" alt="元画像のうちGチャンネルのLSBのみを白黒で表示した画像"></figure>
 			<figure style="display: inline-block; margin-inline: 16px;"><figcaption>Bのみ</figcaption><img src="/images/0001/RED_B.png" width="128" height="128" alt="元画像のうちBチャンネルのLSBのみを白黒で表示した画像"></figure>
@@ -319,8 +319,8 @@ Bold in every stroke.</code></pre>
 		</div>
 		<div>
 			<p>各行で同じデータが連なっていることが分かる。このままだと分からないので、各色ごとに1行目のLSBを取り出してみる</p>
-			<table style="margin-left: 40px;">
-				<tr><th class="th_first">色</th><th class="th_last">データ(2進数)</th></tr>
+			<table>
+				<tr><th>色</th><th>データ(2進数)</th></tr>
 				<tr><td>R</td><td>00000101000001000001000101000000010101000000000101000000000000000101000101000100000101000101000101010000010000010100000000000101</td></tr>
 				<tr><td>G</td><td>10111110100011111011111011001011111011111111111010001110111111111110101010001100101011111010101010101100101101101111111111100101</td></tr>
 				<tr><td>B</td><td>11011011111001000111101000110111000001111001111100110111100001100100001100110110111101110111011000110010010110110100011111001010</td></tr>
@@ -350,8 +350,8 @@ Bold in every stroke.</code></pre>
 		</div>
 		<div>
 			<p>100画素分LSBを取り出してみると、</p>
-			<table style="margin-left: 40px;">
-				<tr><th class="th_first">色</th><th class="th_last">データ(2進数)</th></tr>
+			<table>
+				<tr><th>色</th><th>データ(2進数)</th></tr>
 				<tr><td>R</td><td>0100000010010010100010110010000100010110000100100110010000100010100110010100100000100100101111111111</td></tr>
 				<tr><td>G</td><td>1001111011111011001001111001100001011111100000011111001100001010010011000000101000110001111111111111</td></tr>
 				<tr><td>B</td><td>1001001001100000100101001101101101100101001101100101101101101101101101101101001101001101111111111111</td></tr>
@@ -470,13 +470,13 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 		<div><p>Rustの環境構築をしましたが、省きます</p></div>
 		<div>
 			<p><code>let key = String::from("CSUCKS"<u class="red_wavy">)</u></code></p>
-			<p><code>let key = String::from("CSUCKS")<b>;</b></code></p>
+			<p><code>let key = String::from("CSUCKS")<strong>;</strong></code></p>
 			<p><a href="https://doc.rust-jp.rs/book-ja/ch01-02-hello-world.html?search=#rust%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0%E3%81%AE%E8%A7%A3%E5%89%96" target="_blank">>> Hello, World! - The Rust Programming Language 日本語版</a></p>
 			<p>式の終わりにはセミコロン<code>;</code>を付ける</p>
 		</div>
 		<div>
 			<p><code><u class="red_wavy">ret</u>;</code></p>
-			<p><code><b>return</b>;</code></p>
+			<p><code><strong>return</strong>;</code></p>
 			<p><a href="https://doc.rust-jp.rs/book-ja/ch03-03-how-functions-work.html#%E6%88%BB%E3%82%8A%E5%80%A4%E3%81%AE%E3%81%82%E3%82%8B%E9%96%A2%E6%95%B0" target="_blank">>> 関数 - The Rust Programming Language 日本語版</a></p>
 			<p>関数の途中で<code>return</code>を使い関数を抜ける</p>
 		</div>
@@ -486,7 +486,7 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
     <u class="red_wavy">String::from_utf8_lossy(&decrypted_buffer)</u>
 )</code></pre>
 			<pre><code>println!(
-    "<b>{:?}</b>",
+    "<strong>{:?}</strong>",
     String::from_utf8_lossy(&decrypted_buffer)
 )</code></pre>
 			<p><a href="https://doc.rust-lang.org/std/fmt/index.html" target="_blank">>> std::fmt - Rust</a></p>
@@ -505,10 +505,10 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 :
 let party_foul = String::from("Using memory unsafe languages is a: ");
 decrypt(encrypted_buffer, &party_foul);</code></pre>
-			<pre><code>fn decrypt(encrypted_buffer:Vec&lt;u8&gt;, borrowed_string: &<b>mut</b> String){
+			<pre><code>fn decrypt(encrypted_buffer:Vec&lt;u8&gt;, borrowed_string: &<strong>mut</strong> String){
 :
-let <b>mut</b> party_foul = String::from("Using memory unsafe languages is a: ");
-decrypt(encrypted_buffer, &<b>mut</b> party_foul);</code></pre>
+let <strong>mut</strong> party_foul = String::from("Using memory unsafe languages is a: ");
+decrypt(encrypted_buffer, &<strong>mut</strong> party_foul);</code></pre>
 			<p><a href="https://doc.rust-jp.rs/book-ja/ch04-02-references-and-borrowing.html#%E5%8F%AF%E5%A4%89%E3%81%AA%E5%8F%82%E7%85%A7" target="_blank">>> 参照と借用 - The Rust Programming Language 日本語版</a></p>
 			<p>mut をつけて可変な参照にする</p>
 		</div>
@@ -517,7 +517,7 @@ decrypt(encrypted_buffer, &<b>mut</b> party_foul);</code></pre>
 		</div>
 		<div><p><code>picoCTF{4r3_y0u_h4v1n5_********}</code></p></div>
 		<details style="padding-left: 15px;"><summary><small>関数の後に<code>party_foul</code>を使うことはないため、参照でなく所有権を渡しても良い。その場合</small></summary>
-			<pre><code>fn decrypt(encrypted_buffer:Vec&lt;u8&gt;, <b>mut</b> borrowed_string: String){
+			<pre><code>fn decrypt(encrypted_buffer:Vec&lt;u8&gt;, <strong>mut</strong> borrowed_string: String){
 :
 let party_foul = String::from("Using memory unsafe languages is a: ");
 decrypt(encrypted_buffer, party_foul);</code></pre>
@@ -815,7 +815,7 @@ int main(){
 	</details>
 	<details class="solved"><summary>300 points | Pachinko</summary>
 		<div>
-			<p><b>なにもわかっていないけどこれでフラグを入手できました</b></p>
+			<p><strong>なにもわかっていないけどこれでフラグを入手できました</strong></p>
 			<img src="/images/0001/pachinko.png" width="450" alt="(数字はノード番号を表す) 5から{12,9},6から{9,10},7から{10,11},8から{11,12}に、9から1,10から2,11から3,12から4につなげた有向グラフ">
 		</div>
 		<div><p><code>picoCTF{p4ch1nk0_f146_0n3_********}</code></p></div>
