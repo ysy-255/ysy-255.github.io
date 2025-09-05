@@ -1,0 +1,28 @@
+.bottom-sheet-program_btstp__VBwCq {
+  border-bottom: 1px solid #000;
+  width: 100%;
+}
+.bottom-sheet-program_pr-content__RehkQ {
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+}
+.bottom-sheet-program_pr-tags__rNGHp {
+  margin-left: 2em;
+  margin-right: 2em;
+  justify-content: flex-end;
+  gap: 0.5em;
+  margin-bottom: 1em;
+  display: flex;
+}
+.bottom-sheet-program_pr-subject__TWJfP * {
+	line-break: loose;
+}
+.bottom-sheet-program_pr-text__PmWrR {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+@media (prefers-color-scheme: dark) {
+  .bottom-sheet-program_pr-tag__EN1nJ {
+    background-color: #666;
+  }
+}

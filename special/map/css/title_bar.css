@@ -1,0 +1,22 @@
+.title-bar_title-bar__dRdLr, .title-bar_title-bar-b__aS60J {
+  border-bottom: 2px solid rgba(51, 187, 255, 0.8);
+  align-items: center;
+  margin-bottom: 0.5em;
+  display: flex;
+}
+.title-bar_title-bar-b__aS60J {
+  padding-right: 36px;
+}
+.title-bar_page-title____ZHZ {
+  text-align: center;
+  color: #008;
+  flex: 1;
+  font-weight: 700;
+}
+.title-bar_page-title____ZHZ span {
+  padding-right: 0.1em;
+}
+.title-bar_back-button__pqkGs {
+  color: #008;
+  cursor: pointer;
+}

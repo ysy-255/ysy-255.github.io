@@ -1,0 +1,31 @@
+.leaflet-top.leaflet-right {
+  transition: top 0.3s;
+}
+.leaflet-control-layers-base label span span {
+  color: var(--semantic-text-dark);
+  border-radius: var(--semantic-radius-small);
+  width: 4rem;
+  font-size: var(--semantic-font-size-content);
+  text-align: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  border: 3px solid transparent;
+  margin: 3px;
+  padding: 5px;
+  display: inline-block;
+}
+.leaflet-control-layers-base label span span:hover {
+  border: 3px solid var(--semantic-color-secondly);
+  background: var(--semantic-background-white);
+  color: var(--semantic-color-secondly);
+}
+.leaflet-control-layers-base label span input[type="radio"]:checked + span {
+  width: 4rem;
+  font-weight: 700;
+  border: 3px solid var(--semantic-color-primary) !important;
+  color: var(--semantic-color-primary) !important;
+  background-color: var(--semantic-background-white) !important;
+}
+.leaflet-control-layers-selector {
+  display: none;
+}
