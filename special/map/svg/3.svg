@@ -3,7 +3,7 @@
    width="1750"
    height="1750"
    version="1.1"
-   id="svg282"
+   id="YSFmap_svg"
    viewBox="0 0 1750 1750"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
@@ -611,6 +611,10 @@
          id="quiz-clubB"
          class="program"
          d="m 633,916 v 74 h 90 v -74 z m 90,0 v 74 h 90 v -74 z" />
+      <path
+         id="hokan-com_1B"
+         class="program"
+         d="m 920.5,845 v 39 h 77 v -39 z" />
       <path
          id="sky-flowersB"
          class="program"

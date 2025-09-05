@@ -3,7 +3,7 @@
    width="1750"
    height="1750"
    version="1.1"
-   id="svg282"
+   id="YSFmap_svg"
    viewBox="0 0 1750 1750"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
@@ -360,7 +360,7 @@
       <path
          id="____A1"
          class="annex_base"
-         d="m 810,1507 h 656 V 1205 H 811 Z M 726.16734,1205 H 429 v 302 h 297 z" />
+         d="m 810,1507 h 656 V 1205 H 811 Z M 726,1205 H 429 v 302 h 297 z" />
       <path
          id="____riverside1"
          class="main_base"
@@ -662,7 +662,7 @@
       <path
          id="____backyard13"
          class="backyard"
-         d="m 905,228 h 297 v 289 h 107 v 147 h -104 v 252 h -33 V 806 H 1038 V 701 h -93 v -74 h 154 v -45 h -16 v -65 h 83 v -34 h -60 v -36 h 60 V 412 H 990 V 302 h -85 z"
+         d="m 905,228 h 297 v 289 h 107 v 147 h 16 l 94,326 H 990 v -74 h 119 v -73 h -29 v -37 h -42 V 701 h -93 v -74 h 154 v -45 h -16 v -65 h 83 v -34 h -60 v -36 h 60 V 412 H 990 V 302 h -85 z"
          style="fill:url(#pattern3)" />
       <path
          id="____jukendoB"
@@ -701,13 +701,59 @@
          class="program"
          d="m 995,1356 h 91 V 1205 H 810 v 151 h 95 v -30 h 90 z" />
       <path
-         id="pta-oshikatsu-shopB"
+         id="support-associationB"
          class="program"
-         d="m 404,816 h 28 v 96 h -28 z" />
+         d="m 405,916 h 30 v 51 h -30 z" />
+      <path
+         id="pta-broad-memberB"
+         class="program"
+         d="m 404,816 h 31 v 64 h -31 z" />
       <path
          id="original-goodsB"
          class="program"
-         d="M 432,534 V 668 H 404 V 534 Z" />
+         d="M 435,534 V 668 H 404 V 534 Z" />
+      <rect
+         id="class-h-31B"
+         class="program"
+         width="87"
+         height="60"
+         x="810"
+         y="1135" />
+      <rect
+         id="class-h-33B"
+         class="program"
+         width="87"
+         height="60"
+         x="1089"
+         y="1000" />
+      <rect
+         id="class-h-34B"
+         class="program"
+         width="87"
+         height="60"
+         x="990"
+         y="1000" />
+      <rect
+         id="class-h-36B"
+         class="program"
+         width="87"
+         height="60"
+         x="729"
+         y="1000" />
+      <rect
+         id="class-h-32B"
+         class="program"
+         width="87"
+         height="60"
+         x="632"
+         y="1000" />
+      <rect
+         id="class-h-35B"
+         class="program"
+         width="87"
+         height="60"
+         x="458"
+         y="1000" />
       <use
          id="doorway11"
          href="#doorway"
@@ -724,11 +770,6 @@
          href="#doorway"
          x="1196"
          y="1205" />
-      <use
-         id="doorway14"
-         href="#doorway"
-         x="1196"
-         y="990" />
       <use
          id="doorway15"
          href="#doorway"
@@ -864,11 +905,6 @@
          x="476"
          y="1284" />
       <use
-         id="toilets11"
-         href="#AigaSymbols_Toilets"
-         x="1147"
-         y="825" />
-      <use
          id="toilets12"
          href="#AigaSymbols_Toilets"
          x="874"
@@ -888,11 +924,6 @@
          href="#AigaSymbols_Toilets"
          x="671"
          y="1398" />
-      <use
-         id="wheelchairnew11"
-         href="#AigaSymbols_WheelChairNew"
-         x="1147"
-         y="861" />
       <use
          id="wheelchairnew12"
          href="#AigaSymbols_WheelChairNew"
