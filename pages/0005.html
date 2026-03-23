@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>0005.html</title>
+	<link rel="stylesheet" href="/css/default.css">
+	<style>
+		details > summary, details > h4{font-family: 'Consolas',monospace; font-size: 1.15em; font-weight: 500;}
+	</style>
+</head>
+<body>
+	<h1>ひたすらレジストリ</h1>
+	<h4>気になったレジストリの値を調べて突っ込む</h4>
+	<h4>注釈のない限り、時間の単位はミリ秒、描画単位はpx</h4>
+	<details open><summary>Control Panel\</summary>
+		<details open><summary>Desktop</summary>
+			<h4>BlockSendInputResets <code>0</code></h4>
+			<h4>CaretTimeout <code>5000</code></h4> 
+			<p>キャレットの点滅が終了するまでの時間</p>
+			<h4>CaretWidth <code>1</code></h4>
+			<p>キャレットの幅</p>
+			<h4>ClickLockTime <code>1200</code></h4>
+			<p>クリックロック(コントロールパネル>マウス>ボタン>クリックロック)がオンの場合のクリックロックの発動時間</p>
+			<h4>CoolSwitchColumns <code>7</code></h4>
+			<p>Windows XP時代のタスクスイッチャーにおいて横に並ぶアプリ数</p>
+			<h4>CoolSwitchRows <code>3</code></h4>
+			<p>Windows XP時代のタスクスイッチャーにおいて縦に並ぶアプリ数</p>
+			<h4>CursorBlinkRate <code>530</code></h4>
+			<p>キャレットの点滅が切り替わる時間</p>
+			<h4>DockMoving <code>1</code></h4>
+			<!-- <p><code>0</code>にすると、Aeroスナップ機能のうち</p>
+			<ul>
+				<li>ウィンドウをスクリーン上端にドラッグして最大化</li>
+				<li>ウィンドウをスクリーンの端にドラッグして整列</li>
+			</ul>
+			<p>がオフになる(後者はなぜ...)</p> -->
+			<h4>DragFromMaximize <code>1</code></h4>
+			<p>最大化されたウィンドウをドラッグしたときに元の大きさに戻す</p>
+			<h4>DragFullWindows <code>1</code></h4>
+			<p>ドラッグ中にウィンドウの中身を表示する</p>
+			<h4>DragHeight <code>4</code></h4>
+			<p>長押し中にドラッグとみなす縦方向の移動距離の閾値</p>
+			<h4>DragWidth <code>4</code></h4>
+			<p>長押し中にドラッグとみなす横方向の移動距離の閾値</p>
+			<h4>FocusBorderHeight <code>1</code></h4>
+			<p>フォーカスされた要素の周囲の枠の上側と下側の幅</p>
+			<h4>FocusBorderWidth <code>1</code></h4>
+			<p>フォーカスされた要素の周囲の枠の左側と右側の幅</p>
+			<h4>FontSmoothing <code>2</code></h4>
+			<!-- <p>ClearTypeの設定をオフにしている場合に適用される、従来のアンチエイリアスの設定</p> -->
+			<h4>FontSmoothingGamma <code>0</code></h4>
+			<h4>FontSmoothingOrientation <code>1</code></h4>
+			<h4>FontSmoothingType <code>2</code></h4>
+			<h4>ForegroundFlashCount <code>7</code></h4>
+			<p>アクティブでないアプリを最前面に切り替える要求が拒否された際にタスクバーのアイコンが橙色に点滅する回数</p>
+			<h4>ForegroundLockTimeout <code>200000</code></h4>
+			<h4>LeftOverlapChars <code>3</code></h4>
+			<h4>MenuShowDelay <code>400</code></h4>
+			<p>カーソルを乗せてからサブメニューが開くまでの遅延時間</p>
+			<h4>MouseWheelRouting <code>2</code></h4>
+			<p>ホバーしている非アクティブウィンドウをマウスホイールでスクロールできるようにする</p>
+			<p><code>0</code>でオフ、<code>2</code>でオン</p>
+			<h4>PaintDesktopVersion <code>0</code></h4>
+			<p>デスクトップの右下にWindowsのバージョンとビルド番号を表示する</p>
+			<h4>Pattern <code>0</code></h4>
+			<h4>RightOverlapChars <code>3</code></h4>
+			<h4>ScreenSaveActive <code>1?</code></h4>
+			<p>スクリーンセーバーを有効にする</p>
+			<h4>SnapSizing <code>1</code></h4>
+			<h4>TileWallpaper <code>0</code></h4>
+			<p>WallpaperStyleが0であるときデスクトップの壁紙をタイル表示する</p>
+			<h4>WallPaper <code>?</code></h4>
+			<p>デスクトップの壁紙の元画像のパス 実際に表示される壁紙のパスではないことに注意</p>
+			<h4>WallpaperOriginX <code>0</code></h4>
+			<h4>WallpaperOriginY <code>0</code></h4>
+			<h4>WallpaperStyle <code>10</code></h4>
+			<p><code>0</code>: 中央に表示</p>
+			<p><code>2</code>: 画面に合わせて伸縮</p>
+			<p><code>6</code>: 縦幅に合わせる</p>
+			<p><code>10</code>: 横幅に合わせる</p>
+			<h4>WheelScrollChars <code>3</code></h4>
+			<p>マウスホイールを横に倒したときにスクロールする文字数</p>
+			<h4>WheelScrollLines <code>3</code></h4>
+			<p>マウスホイールを1段階回転させたときにスクロールする行数</p>
+			<h4>WindowArrangementActive <code>1</code></h4>
+		</details>
+		<p><br><br><br><br><br><br><br><br><br><br><br><br><br><br></p>
+	</details>
+</body>
