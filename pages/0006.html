@@ -40,7 +40,7 @@
 	<details class="solved"><summary>Lv.1 | Hidden</summary>
 		<div>
 			<p>ファイル内にフラグの文字列があると考える</p>
-			<p><a href="https://gitlab.com/devill.tamachan/binaryeditorbz">Binary Editor BZ</a>で<code>CPCTF</code>を検索するとフラグがヒットした</p>
+			<p><a href="https://gitlab.com/devill.tamachan/binaryeditorbz">Binary Editor BZ</a>で開いて<code>CPCTF</code>を検索するとフラグがヒットした</p>
 		</div>
 		<pre><samp class="flag">H1dd3n_1n_5tr1ngs</samp></pre>
 	</details>
@@ -99,8 +99,7 @@ if (verify_key(secret_key)) {
 			<p>環境変数<code>CTF_SECRET_KEY</code>をこれに設定して実行すればフラグが出力される</p>
 			<pre><code class="bash">export CTF_SECRET_KEY=THIS_IS_SUPER_SECRET_KEY</code></pre>
 			<pre><code class="bash">./chal</code></pre>
-			<pre><samp>OK, the check passed! Here is the flag:
-<span class="flag">c4n_y0u_f1nd_3nv1r0nm3n7_v4r1abl35</span></samp></pre>
+			<pre><samp>OK, the check passed! Here is the flag:</samp></pre>
 		</div>
 		<pre><samp class="flag">c4n_y0u_f1nd_3nv1r0nm3n7_v4r1abl35</samp></pre>
 		<div>
@@ -119,7 +118,12 @@ for i, c in enumerate("R]OB\\wu.xOl0bEp1hs_\"tx1n!ca%t;Il\"b$auv%5{"):
 			<pre><samp class="flag">c4n_y0u_f1nd_3nv1r0nm3n7_v4r1abl35</samp></pre>
 		</div>
 	</details>
-	<details><summary>Lv.4 | viGor</summary></details>
+	<details><summary>Lv.4 | viGor</summary>
+		<div>
+			<p>go言語を知らないので逃げてCopilotに投げたところ数分でフラグを出してくれた</p>
+			<p>コードの主要部だけを見ると長さ6の文字列でデータを6文字ずつXORしてフラグ(?)を復元しているので、出力がCPCTF{から始まるようその6文字を決めればいいみたい。つまりGo言語の知識はあまりいらなかった</p>
+		</div>
+	</details>
 	<h2>Crypto</h2>
 	<details class="solved"><summary>Lv.1 | Dualcast</summary>
 		<div>
@@ -167,12 +171,16 @@ print(enc_input_flag.hex())</code></pre>
 			<p><code>flag1</code>が求めたいフラグ</p>
 		</div>
 		<div>
-			<p><code>f</code>は引数に完全に依存して乱数生成器を初期化したものを返しているので、<code>iv2</code>を<code>iv1</code>と同じにすれば同じ乱数生成器で<code>g</code>を実行できる</p>
-			<p><code>g</code>は乱数生成器<code>f(key, iv)</code>で1文字ずつXORをしているので、<code>flag1 ^ g(f(key, iv1), flag1) = g(f(key, iv2), flag2) ^ flag2</code></p>
-			<p><code>flag1 = g(f(key, iv1), flag1) ^ g(f(key, iv2), flag2) ^ flag2</code>となる</p>
+			<p><code>f</code>は引数に完全に依存して初期化した乱数生成器を返しているので、<code>iv2</code>を<code>iv1</code>と同じにすれば同じ乱数生成器で<code>g</code>を実行できる</p>
+			<p>以下、<code>iv1</code>と<code>iv2</code>を同じ<code>iv</code>にすることを前提とする</p>
+			<p><code>f(key, iv)</code>によって出力された乱数列を<code>f_str</code>と表す</p>
+			<p><code>g(f(key, iv), flag) = f_str ^ flag</code>だから、</p>
+			<p><code>flag1 ^ (f_str ^ flag1) = (f_str ^ flag2) ^ flag2 = f_str</code></p>
+			<p><code>flag1 = (f_str ^ flag1) ^ (f_str ^ flag2) ^ flag2</code></p>
+			<p><code>flag1 = g(f(key, iv), flag1) ^ g(f(key, iv), flag2) ^ flag2</code>となる</p>
 		</div>
 		<div>
-			<p>pythonコードで書くと、</p>
+			<p>pythonコードで書いて実行すると、</p>
 			<pre><code>from pwn import remote
 
 host = "133.88.122.244"
@@ -180,21 +188,21 @@ port = 32007
 r = remote(host, port)
 
 r.recvuntil(b"used!: ")
-iv1 = r.recvline().strip()
+iv = r.recvline().strip()
 
 r.recvuntil(b" => ")
-xor1 = bytes.fromhex(r.recvline().strip().decode())
+g1 = bytes.fromhex(r.recvline().strip().decode())
 
 r.recvuntil(b"(Hex): ")
-r.sendline(b"00" * len(xor1))
+r.sendline(b"00" * len(g1)) # flag2はg1以上の長さである必要がある。xorの計算を楽にするために全て0にする
 
 r.recvuntil(b"(Hex): ")
-r.sendline(iv1)
+r.sendline(iv)
 
 r.recvuntil(b" => ")
-xor2 = bytes.fromhex(r.recvline().strip().decode())
+g2 = bytes.fromhex(r.recvline().strip().decode())
 
-print(bytes(a ^ b for a, b in zip(xor1, xor2)).decode())</code></pre>
+print(bytes(a ^ b for a, b in zip(g1, g2)).decode())</code></pre>
 		</div>
 		<pre><samp class="flag">SAMe_01d_STReam_1s_A1WaYs_b0r1ng</samp></pre>
 	</details>
@@ -205,7 +213,7 @@ print(bytes(a ^ b for a, b in zip(xor1, xor2)).decode())</code></pre>
 			<p><code>N = 1000(0が317+95-1個)7 <b>×</b> 111(1が317個)</code></p>
 		</div>
 		<div>
-			<p>p,qが分かったので、RSAを復号できる。pythonコードで書くと、</p>
+			<p>p,qが分かったので、RSAを復号できる。pythonコードで書いて実行すると、</p>
 			<pre><code>from Crypto.Util.number import long_to_bytes
 from py107 import N, e, c
 p = 10**(317+95)+7
@@ -217,14 +225,14 @@ print(long_to_bytes(pow(c, d, N)).decode())</code></pre>
 	</details>
 	<details class="solved"><summary>Lv.3 | Anomaly 2</summary>
 		<div>
-			<p>RSA暗号になっていない。<code>n^3 mod m</code>と<code>n</code>が2組与えられている</p>
-			<p><code>n^3 - (n^3 mod m) = k * m</code>であることを踏まえれば</p>
-			<p><code>m * (ある程度小さい整数) = gcd(n^3 - (n^3 mod m), n^3 - (n^3 mod m))</code>であるから、とりあえず</p>
+			<p>RSA暗号になっていない。<code>n³ mod m</code>と<code>n</code>が2組与えられている</p>
+			<p><code>n³ - (n³ mod m) = k * m</code>であることを踏まえれば</p>
+			<p><code>m * (ある程度小さい整数) = gcd(n₁³ - (n₁³ mod m), n₂³ - (n₂³ mod m))</code>であるから、とりあえず</p>
 			<p><code>m * (ある程度小さい整数)</code>を求める</p>
 		</div>
 		<div>
-			<p>そのままではフラグにならなかった。下2桁が<code>30</code>なので、2で割ってみて<code>long_to_bytes</code>してみるとフラグが得られる。つまり、<code>ある程度小さい整数</code>は2だった</p>
-			<p>pythonコードで書くと、</p>
+			<p>そのままでは<code>long_to_bytes</code>してもフラグにならなかった。下2桁が<code>30</code>なので、2で割ってみて<code>long_to_bytes</code>してみるとフラグが得られる。つまり、<code>ある程度小さい整数</code>は2だった</p>
+			<p>pythonコードで書いて実行すると、</p>
 			<pre><code>from math import gcd
 from Crypto.Util.number import long_to_bytes
 from output import n1, c1, n2, c2
@@ -234,17 +242,17 @@ print(long_to_bytes(gcd(n1**3 - c1, n2**3 - c2) // 2).decode())</code></pre>
 	</details>
 	<details class="solved"><summary>Lv.3 | Janken Master</summary>
 		<div>
-			<p>正直乱数生成のアルゴリズムをよく理解したわけではないが、シード値が0だと乱数列が全て0になりそう</p>
+			<p>正直この問題の乱数生成のアルゴリズムについてよく理解したわけではないが、シード値が0だと乱数列が全て0になりそう</p>
 			<p><code>seed = int(seed_input) ^ 0x1234567890abcdef1234567890abcdef</code>だから、この値をそのまま入力する</p>
 		</div>
 		<div>
-			<p>pythonコードで書くと、</p>
+			<p>pythonコードで書いて実行すると、</p>
 			<pre><code>from pwn import remote
 host = "133.88.122.244"
 port = 32212
 r = remote(host, port)
 r.recvuntil(b"(seed): ")
-r.sendline(str(int("1234567890abcdef1234567890abcdef", 16)).encode())
+r.sendline(str(0x1234567890abcdef1234567890abcdef).encode())
 r.recvuntil(b"(0-2): ")
 r.sendline(b"2")
 r.interactive()</code></pre>
@@ -253,13 +261,13 @@ Your hand: 2
 NPC hands: Rock=99, Scissors=0, Paper=0
 
 Congratulations! You are the SOLE winner!
-Here is your reward: <span class="flag">M45TER_of_riGGed_d1Ce</span></samp></pre>
+Here is your reward: </samp></pre>
 		</div>
 		<pre><samp class="flag">M45TER_of_riGGed_d1Ce</samp></pre>
 	</details>
 	<details class="solved"><summary>Lv.4 | Bitwise Scrumble</summary>
 		<div>
-			<p>75文字のフラグを25文字ごとに分け、それぞれ25文字の<code>key</code>一緒に1文字ずつ処理している</p>
+			<p>75文字のフラグを25文字ごとに分け、それぞれ25文字の<code>key</code>で1文字ずつ処理している</p>
 			<p>前半25文字: <code>(f | k) & (f ^ k)</code></p>
 			<p>こりゃあ。。<code>f ^ k</code>でよいですね。</p>
 			<p>中盤25文字: <code>(s & k) ^ (s | k)</code></p>
@@ -268,7 +276,7 @@ Here is your reward: <span class="flag">M45TER_of_riGGed_d1Ce</span></samp></pre
 			<p>こりゃあ完全に<code>t ^ k</code>でよいでしょう！</p>
 		</div>
 		<div>
-			<p>ということで、全部<code>key</code>とXORを取ればフラグが得られる。pythonコードで書くと、</p>
+			<p>ということで、全部<code>key</code>とXORを取ればフラグが得られる。pythonコードで書いて実行すると、</p>
 			<pre><code>from Crypto.Util.number import long_to_bytes
 enc_bytes = "10aa77170b38758c146245779086332e5e8237430f362d317310124333b999b890043152135"
 key = "0123456789012109876543210"
@@ -279,18 +287,25 @@ print(long_to_bytes(n).decode())</code></pre>
 		</div>
 		<pre><samp class="flag">B1twis3_r0t4t10n!_3tim3s</samp></pre>
 	</details>
-	<details><summary>Lv.5 | mod N Janken</summary></details>
+	<details><summary>Lv.5 | mod N Janken</summary>
+		<div>
+			<p>xorshiftの最小多項式を求めれば、luck_patternはそれを何倍かしたものにすれば参加者の入力を全て打ち消して0にできます</p>
+			<p>Cheatの使用回数を抑えるためには、与えられたluck_patternを最小多項式で割ってかければいいです</p>
+			<p>こうしてでてきたものは、自分の最初の入力のみに依存してclash_powerが決まりますが、107で割ったあまりwinnerがplayer_noになるとは限らないので、最小多項式の整数倍を足してみて、条件を満たすものを選んでluck_patternを更新します</p>
+			<p>Copilotくんにお気持ちだけ伝えて解いてもらいました。あまり理解できていないです</p>
+		</div>
+	</details>
 	<h2>Forensics</h2>
 	<details class="solved"><summary>Lv.1 | L0v3 PDF</summary>
 		<div>
 			<p>ReversingのHiddenと同様に、ファイル内にフラグの文字列があると考える</p>
-			<p><a href="https://gitlab.com/devill.tamachan/binaryeditorbz">Binary Editor BZ</a>で<code>CPCTF</code>を検索するとフラグがヒットした</p>
+			<p><a href="https://gitlab.com/devill.tamachan/binaryeditorbz">Binary Editor BZ</a>で開いて<code>CPCTF</code>を検索するとフラグがヒットした</p>
 		</div>
 		<pre><samp class="flag">Lets_P1ey_W1th_PdFs</samp></pre>
 	</details>
 	<details class="solved"><summary>LV.2 | Flag in Flags</summary>
 		<div>
-			<p>PNGファイルは可逆圧縮なので、視覚的影響がほとんどない画素の下位ビットに直接情報を埋め込むことができる。</p>
+			<p>PNGファイルは可逆圧縮なので、視覚的影響がほとんどない画素の下位ビットに直接情報を埋め込んでも保守性が高い</p>
 			<p><a href="https://github.com/Giotino/stegsolve">StegSolve</a>で画像を開き、RGBの各ビットで画像を見ると、特にGの下から3,4ビット目でフラグの文字列が浮かび上がる</p>
 		</div>
 		<pre><samp class="flag">FLAG_MANY_FLAGS_FLAG</samp></pre>
@@ -356,7 +371,9 @@ for i in range(100000000):
 		</div>
 		<pre><samp class="flag">d1g3st_4uth_15_4_ch4ll3ng3</samp></pre>
 	</details>
-	<details><summary>Lv.5 | Authorized Whale</summary></details>
+	<details><summary>Lv.5 | Authorized Whale</summary>
+		<p>Copilotに解いてもらいました。何も理解できていないです</p>
+	</details>
 	<h2>Misc</h2>
 	<details class="upsolved"><summary>Lv.1 | Sanity Check</summary>
 		<div>
@@ -369,7 +386,9 @@ for i in range(100000000):
 			<pre><samp class="flag">th4nk_y0u_for_p1aying</samp></pre>
 		</div>
 	</details>
-	<details><summary>Lv.3 | Hello LaTeX3!!!</summary></details>
+	<details><summary>Lv.3 | Hello LaTeX3!!!</summary>
+		<p>それらしいものを調べて提出したら正解したけど、あまり良くわかっていないです</p>
+	</details>
 	<details class="solved"><summary>Lv.3 | QRRRRRRRRRR</summary>
 		<div>
 			<p>一般的なQRコードリーダーでは内容を解釈できないコードが与えられる</p>
@@ -416,7 +435,9 @@ print(long_to_bytes(int("".join(RS1[::-1])[12:136] + "".join(RS2[::-1])[:116], 2
 		</div>
 		<pre><samp class="flag">z3r0_l3ngth_h1dd3n_d4t4</samp></pre>
 	</details>
-	<details><summary>Lv.4 | Damaged Report</summary></details>
+	<details><summary>Lv.4 | Damaged Report</summary>
+		<p>あまり覚えていないです。Copilotに解いてもらった気がします</p>
+	</details>
 	<h2>OSINT</h2>
 	<details class="solved"><summary>Lv.2 | IRIS OUT</summary>
 		<div>
@@ -491,7 +512,7 @@ print(long_to_bytes(int("".join(RS1[::-1])[12:136] + "".join(RS2[::-1])[:116], 2
 	<details class="solved"><summary>Lv.3 | Digit Products 2</summary>
 		<div>
 			<p>最高位の数は0ではないから、最高位以外が0かどうかは1手で判定できる。</p>
-			<p>0でない位が3つあるなら、それらの数を<code>a,b,c</code>として、出力される<code>ab,bc,ca</code>から<code>a²=ab*ca/bc,b²=ab*bc/ca,c²=bc*ca/ab</code>と定まる。</p>
+			<p>0でない位が3つあるなら、それらの数を<code>a,b,c</code>として、出力される<code>ab,bc,ca</code>から<code>a²=ab*ca/bc, b²=ab*bc/ca, c²=bc*ca/ab</code>と定まる。</p>
 			<p>そして、それ以外の桁も定まった桁との積を見れば求まる。</p>
 			<p>0でない位が2つだけなら、それらの数が異なっている場合一意に定まらない。また、2*2=1*4, 3*3=1*9, 4*4=2*8, 6*6=4*9であるから、積が<code>1,25,49,64,81</code>である場合のみそれら2つの数がどちらも<code>1,5,7,8,9</code>であると定まる。</p>
 			<p>0でない位が1つのときは、もちろん定まらない。</p>
@@ -504,7 +525,7 @@ print(long_to_bytes(int("".join(RS1[::-1])[12:136] + "".join(RS2[::-1])[:116], 2
 			<p>各商品の重みX_iの約数はたかだかO(√X_i)個であり、列挙もO(√X_i)で行える。</p>
 			<p>「ある数について、その数を重みの約数に持つ商品の値段の総和」の最大値を求めたい</p>
 			<p>商品iの重みX_iの全ての約数dに対して、「数dを重みの約数に持つ商品の値段の総和」に値段Y_iを加えれば良い。</p>
-			<p>これをすべての商品に対して行って、最後に「数dを重みの約数に持つ商品の値段の総和」の最大値を求めれば良い。</p>
+			<p>これをすべての商品に対して行えば、最後に「数dを重みの約数に持つ商品の値段の総和」の最大値が求まる。</p>
 		</div>
 		<p>提出: <a href="https://yukicoder.me/submissions/1160145">#1160145 (C++17(gcc12)) No.3502 GCD Knapsack - yukicoder</a></p>
 	</details>
@@ -523,11 +544,11 @@ print(long_to_bytes(int("".join(RS1[::-1])[12:136] + "".join(RS2[::-1])[:116], 2
 		</div>
 		<p>提出: <a href="https://yukicoder.me/submissions/1160543">#1160543 (C++17(gcc12)) No.3505 Sum of Prod of Root - yukicoder</a></p>
 	</details>
-	<details class="unsolved"><summary>Lv.4 | All Distance is Square Number</summary></details>
-	<details class="unsolved"><summary>Lv.4 | OR Mapping</summary></details>
-	<details class="unsolved"><summary>Lv.4 | RangeSum RangeUpdate RangeSqrt</summary></details>
-	<details class="unsolved"><summary>Lv.5 | RPS Eliminations</summary></details>
-	<details class="unsolved"><summary>Lv.5 | Get More Money</summary></details>
+	<details class="unsolved"><summary>Lv.4 | All Distance is Square Number</summary><p>良さげな構造でヒューリスティック的ななにかを色々試したけど、そういう問題じゃなかったみたいです</p></details>
+	<details class="unsolved"><summary>Lv.4 | OR Mapping</summary><p>:wakaran:</p></details>
+	<details class="unsolved"><summary>Lv.4 | RangeSum RangeUpdate RangeSqrt</summary><p>:tasukete:</p></details>
+	<details class="unsolved"><summary>Lv.5 | RPS Eliminations</summary><p>:murimurimurimurikatatsumuri-nya:</p></details>
+	<details class="unsolved"><summary>Lv.5 | Get More Money</summary><p>:atama-paan-nya:</p></details>
 	<h2>Pwn</h2>
 	<details class="solved"><summary>Lv.1 | Killionaire</summary>
 		<div>
@@ -555,7 +576,7 @@ Result: SUCCESS (Gain: -17700)
 Round 3 | Coins: -18049
 Bet: <code>-100000</code>
 Result: FAILURE (Lost: -100000)
-Flag: <span class="flag">n3g4t1v3_v41u3_1s_m0re_p0w3rfu1_th4n_p0s1tiv3_va1u3</span></samp></pre>
+Flag: </samp></pre>
 		</div>
 		<pre><samp class="flag">n3g4t1v3_v41u3_1s_m0re_p0w3rfu1_th4n_p0s1tiv3_va1u3</samp></pre>
 	</details>
@@ -622,9 +643,7 @@ payload = (
 r.sendlineafter(b"Name: ", payload)
 r.sendlineafter(b"Phone: ", b"0")
 r.interactive()</code></pre>
-			<pre><samp>Congratulations! You can get the VIP membership!
-<span class="flag">b3_c4r3fu1_0f_ph15h1ng_m3s54g3s</span>
-<span class="bash"><code>quit</code></span></samp></pre>
+			<pre><samp>Congratulations! You can get the VIP membership!</samp></pre>
 		</div>
 		<pre><samp class="flag">b3_c4r3fu1_0f_ph15h1ng_m3s54g3s</samp></pre>
 	</details>
@@ -642,7 +661,7 @@ Program received signal SIGSEGV, Segmentation fault.</samp></pre>
 			<pre><samp>$1 = 0x4015f4</samp></pre>
 			<pre><code class="gdb">x/xg $rsp</code></pre>
 			<pre><samp>0x7fffffffd858: 0x3641414141414141</samp></pre>
-			<p>Ghidraでは<code>0x4015f4</code>はRET命令になっているから、この後リターンアドレスは<code>0x3641414141414141</code>に書き換わる。つまり、スタックの6番目がリターンアドレスに対応していることがわかる</p>
+			<p>Ghidraで見ると<code>0x4015f4</code>はRET命令になっているから、この後リターンアドレスは<code>0x3641414141414141</code>に書き換わる。つまり、スタックの6番目がリターンアドレスに対応していることがわかる</p>
 		</div>
 		<div>
 			<p><code>win</code>関数を見ると、<code>R14 == 0x7a0000006876</code>かつ<code>RBX == 0x3b001d000084000</code>かつ<code>R12 == 0x700002c40</code>である場合にのみフラグが出力されることが分かる</p>
@@ -682,7 +701,9 @@ r.interactive()</code></pre>
 		</div>
 		<pre><samp class="flag">u53_sc4nf_w17h_s1z3_0f_buFf3r5</samp></pre>
 	</details>
-	<details class="unsolved"><summary>Lv.5 | diary</summary></details>
+	<details class="unsolved"><summary>Lv.5 | diary</summary>
+		<p>いつも使っている言語なのに脆弱性分からなくて危機感</p>
+	</details>
 	<h2>Shell</h2>
 	<details class="solved"><summary>Lv.1 | ssh</summary>
 		<div>
@@ -718,7 +739,7 @@ r.interactive()</code></pre>
 		</div>
 		<div>
 			<p>しかし、<code>c p t f</code>に含まれない英文字も多くあるので、<code>$(&lt;/flag/flag.txt)</code>のように入力することはできない</p>
-			<p>そこで、unix系に備わっているglob展開を利用する。globでは、<code>*</code>を用いて、<code>/</code>を除く任意の文字列を表すことができる</p>
+			<p>そこで、unix系に備わっているglob展開を利用する。globでは、<code>*</code>を用いて、<code>/</code>を除く任意の文字列を省略できる（多少語弊があるけど今回の場合そういえる）</p>
 			<p><code>f</code>を入力することはできるので、</p>
 			<pre><code class="bash">bash -c $(&lt;/f*/f*)</code></pre>
 			<p>で<code>/flag/flag.txt</code>を実行しようとできる</p>
@@ -734,14 +755,13 @@ r.interactive()</code></pre>
 		<div>
 			<p><code>CPCTF</code>で始まる文字列をコピペしたら、全く異なる文字列になっていた</p>
 			<p>開発者ツールで見てみると、全体に<code>mirage</code>というフォントが適用されていて、これが見た目上の文字列を改変していたみたい</p>
-			<p><code>font-family</code>のチェックを外せば、他の場所が正しいフラグであることが分かった</p>
+			<p><code>font-family</code>のチェックを外せば、他の文字列が正しいフラグであることが分かった</p>
 		</div>
 		<pre><samp class="flag">CH4R4C73R5_4L50_D159U153</samp></pre>
 	</details>
 	<h6>つかれちゃいました。。</h6>
 	<details><summary>Lv.2 | Hidden Recipe</summary></details>
 	<details><summary>Lv.2 | Let's remove script tag</summary></details>
-	<details><summary>Lv.2 | Z</summary></details>
 	<details><summary>Lv.2 | Z</summary></details>
 	<details><summary>Lv.3 | tar me</summary></details>
 	<details><summary>Lv.4 | CPCTF Market</summary></details>
