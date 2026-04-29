@@ -1,0 +1,62 @@
+:root{
+	--color-solved: #00c000;
+	--color-upsolved: #c0c000;
+	--color-unsolved: #c00000;
+}
+body.theme-light:not(:has(#theme_switch:checked)),
+body:not(.theme-light):has(#theme_switch:checked){ /* 同じでいい気がした */
+	--color-solved: #00c000;
+	--color-upsolved: #c0c000;
+	--color-unsolved: #c00000;
+}
+:root{
+	--flag-toggle-label: "フラグ非表示中";
+}
+body:has(#flag_switch:checked) {
+	--flag-toggle-label: "フラグ表示中";
+}
+#flag_toggle{
+	--toggle-label: var(--flag-toggle-label);
+}
+.flag{
+	color: transparent;
+}
+.flag::before, .flag::after{
+	color: var(--text-color);
+}
+.flag::before{
+	content: "FLAG{";
+}
+.flag::after{
+	content: "}";
+}
+body:has(#flag_switch:checked) .flag{
+	color: var(--text-color);
+}
+
+details{
+	padding-left: 0;
+}
+details:hover, details[open]{
+	padding-left: 4px;
+}
+details:not([class]):hover, details:not([class])[open]{
+	padding-left: 0;
+}
+details:not([class]) > summary{
+	cursor: default;
+}
+details > summary{
+	margin-left: 0;
+	font-family: 'Consolas',monospace;
+	font-size: 1.15em;
+}
+details.solved > summary, span.solved{
+	color: var(--color-solved);
+}
+details.upsolved > summary, span.upsolved{
+	color: var(--color-upsolved);
+}
+details.unsolved > summary, span.unsolved{
+	color: var(--color-unsolved);
+}
