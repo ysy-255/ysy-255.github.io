@@ -9,3 +9,7 @@
 .root::before{
 	content: "# ";
 }
+
+.gdb::before{
+	content: "(gdb) ";
+}
