@@ -3,6 +3,46 @@ html{
 	tab-size: 4;
 }
 
+:root{
+	--bg-color: #000;
+	--text-color: #C0C0C0; /* COCORO */
+	--link-color: #60C0E0;
+	--link-visited-color: #C060E0;
+	--code-bg: #303030;
+	--samp-bg: #242424;
+	--kbd-bg: #333; /* 保留 */
+	--kbd-border: #777; /* 保留 */
+	--table-border: #C0C0C0;
+	--th-bg: #C0C0C0;
+	--th-text: #000;
+	--th-border: #000;
+	--theme-toggle-bg: #242424; /* 保留 */
+	--theme-toggle-text: #eee; /* 保留 */
+	--theme-toggle-border: #888; /* 保留 */
+}
+body.theme-light:not(:has(#theme_switch:checked)),
+body:not(.theme-light):has(#theme_switch:checked){
+	--bg-color: #FFFFFF;
+	--text-color: #353535; /* MIKO */
+	--link-color: #3090B0;
+	--link-visited-color: #9030B0;
+	--code-bg: #f0f0f0;
+	--samp-bg: #f7f7f7;
+	--kbd-bg: #eee; /* 保留 */
+	--kbd-border: #aaa; /* 保留 */
+	--table-border: #353535;
+	--th-bg: #666; /* 保留 */
+	--th-text: #FFFFFF;
+	--th-border: #fff; /* 保留 */
+	--theme-toggle-bg: #f7f7f7; /* 保留 */
+	--theme-toggle-text: #333; /* 保留 */
+	--theme-toggle-border: #888; /* 保留 */
+}
+:root{
+	--theme-toggle-label: "テーマ切替";
+}
+
+
 .body_w60{
 	padding-left: clamp(0px, calc(32vw - 192px), 20vw);
 	width: clamp(60vw, calc(42vw + 288px), 90vw);
@@ -15,6 +55,7 @@ html{
 	margin-inline: 0;
 }
 
+/* 記事の左上に必ずつける、トップページへ戻るリンク */
 #back_to_main{
 	padding: 0;
 	margin: 0;
@@ -23,9 +64,10 @@ html{
 body{
 	margin: 0;
 	line-height: 1.6;
-	background-color: #000;
-	color: #C0C0C0;
+	background-color: var(--bg-color);
+	color: var(--text-color);
 }
+
 body, details, .padl{
 	padding-left: 32px;
 }
@@ -128,22 +170,22 @@ table{
 
 td{
 	border: 1px solid;
-	border-color: #C0C0C0;
+	border-color: var(--table-border);
 	padding: 4px;
 }
 
 th{
-	background-color: #C0C0C0;
-	color: #000;
+	background-color: var(--th-bg);
+	color: var(--th-text);
 	border-left: 1px solid;
 	border-right: 1px solid;
-	border-color: #000;
+	border-color: var(--th-border);
 }
 th:first-child{
-	border-left-color: #C0C0C0;
+	border-left-color: var(--th-bg);
 }
 th:last-child{
-	border-right-color: #C0C0C0;
+	border-right-color: var(--th-bg);
 }
 
 
@@ -157,17 +199,17 @@ a{
 	padding-right: 0.3em;
 }
 a:link{
-	color: #60C0E0;
+	color: var(--link-color);
 }
 a:hover{
 	text-decoration: underline;
 	transform: translateX(0.25em);
 }
 a:visited{
-	color: #C060E0;
+	color: var(--link-visited-color);
 }
 
-code, samp{
+code, samp, kbd{
 	font-family: 'Consolas', 'Menlo', "メイリオ", monospace;
 	display: inline-block;
 	padding-block: 1px;
@@ -178,12 +220,18 @@ code, samp{
 }
 
 code{
-	background-color: #303030;
+	background-color: var(--code-bg);
 	border-radius: 4px;
 }
 samp{
-	background-color: #242424;
+	background-color: var(--samp-bg);
 	border-radius: 0;
+}
+
+kbd{
+	background-color: var(--kbd-bg);
+	border: 2.5px solid var(--kbd-border);
+	border-radius: 4px;
 }
 
 pre{
@@ -203,6 +251,43 @@ details[open] > summary{
 	cursor: default;
 }
 
+#top_toggles{
+	z-index: 1000;
+	position: fixed;
+	top: 8px;
+	right: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	align-items: flex-end;
+}
+#top_toggles > .toggle-switch{
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+.toggle-button{
+	padding: 4px 10px;
+	font-size: 14px;
+	border: 1px solid var(--theme-toggle-border);
+	border-radius: 8px;
+	background-color: var(--theme-toggle-bg);
+	color: var(--theme-toggle-text);
+	cursor: pointer;
+	user-select: none;
+}
+.toggle-switch:focus-visible + .toggle-button{
+	outline: auto;
+}
+.toggle-button:hover{
+	border-color: var(--theme-toggle-text);
+}
+.toggle-button::after{
+	content: var(--toggle-label, "");
+}
+#theme_toggle{
+	--toggle-label: var(--theme-toggle-label);
+}
 
 .red_wavy{
 	text-decoration: red wavy underline;
